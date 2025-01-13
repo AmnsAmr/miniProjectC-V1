@@ -30,6 +30,7 @@ public:
 
     string getname();
     principal getpricipal();
+    Library& getlibrary();
 
     void addTeacher(teacher& t);
     void addStudent(student& s);

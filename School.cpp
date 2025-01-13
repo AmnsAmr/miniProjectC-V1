@@ -10,6 +10,7 @@ string school::getname() {
 principal school::getpricipal() {
     return Principal;
 }
+Library& school::getlibrary() { return library; }
 
 void school::addTeacher(teacher& t) {
     teachers.push_back(t);

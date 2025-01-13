@@ -5,6 +5,9 @@ Ministry_of_Education::Ministry_of_Education(const string& name, vector<string> 
     : Name(name), Policies(policies), AnnualBudget(annualBudget) {
 }
 
+string& Ministry_of_Education::getName() { return Name; }
+
+
 void Ministry_of_Education::addPolicy(string& policy) {
     Policies.push_back(policy);
 }

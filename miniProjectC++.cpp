@@ -1,4 +1,4 @@
-#include "person.h"
+/*#include "person.h"
 #include "student.h"
 #include "teacher.h"
 #include "principal.h"
@@ -431,4 +431,4 @@ int main() {
         }
     }
     return 0;
-}
+}*/

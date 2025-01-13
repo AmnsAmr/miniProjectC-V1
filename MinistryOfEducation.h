@@ -14,6 +14,8 @@ class Ministry_of_Education {
 public:
     Ministry_of_Education(const string& name = "", vector<string> policies = {}, float annualBudget = 0.0);
 
+    string& getName();
+
     void addPolicy(string& policy);
     void addProsecution(prosecution* p); // Accept a pointer to prosecution
 
