@@ -37,3 +37,39 @@ void assignment::input() {
     cin >> Due_date;
     cin.ignore(); // Clear the input buffer
 }
+
+void assignment::manageAssignmentMenu(std::vector<std::shared_ptr<assignment>>& assignments) {
+    int choice;
+    cout << "\nAssignment Menu:\n";
+    cout << "1. Create an Assignment\n";
+    cout << "2. Display All Assignments\n";
+    cout << "0. Back to Main Menu\n";
+    cout << "Enter your choice: ";
+    cin >> choice;
+    cin.ignore();
+    switch (choice) {
+    case 1: {
+        auto a = std::make_shared<assignment>();
+        a->input();
+        assignments.push_back(a);
+        cout << "\nAssignment created successfully!\n";
+        break;
+    }
+    case 2: {
+        if (assignments.empty()) {
+            cout << "No Assignment objects created yet!\n";
+        }
+        else {
+            cout << "\nAll Assignments:\n";
+            for (size_t i = 0; i < assignments.size(); ++i) {
+                cout << "Assignment " << i + 1 << ":\n";
+                assignments[i]->affichage();
+                cout << "-----------------\n";
+            }
+        }
+        break;
+    }
+    case 0: return;
+    default: cout << "Invalid choice!\n";
+    }
+}

@@ -4,6 +4,8 @@
 Group::Group(std::string g, int rn, std::vector<teacher> t) : group(g), roomnumber(rn), Teachers(t) {}
 Group::Group() : roomnumber(0), capacity(5) {}
 
+string Group::getgroup() { return group; }
+
 void Group::addStudent(student& s) {
     if (students.size() < capacity) {
         students.push_back(s);
@@ -53,7 +55,7 @@ void Group::input() {
 }
 
 // New function implementation
-void Group::addStudentToGroup(std::vector<Group*>& groups, const std::vector<student*>& students) {
+void Group::addStudentToGroup(std::vector<std::shared_ptr<Group>>& groups, const std::vector<std::shared_ptr<student>>& students) {
     if (groups.empty()) {
         std::cout << "No groups available to add a student.\n";
     }
@@ -91,5 +93,47 @@ void Group::addStudentToGroup(std::vector<Group*>& groups, const std::vector<stu
         else {
             std::cout << "Invalid group number!\n";
         }
+    }
+}
+
+void Group::manageGroupMenu(std::vector<std::shared_ptr<Group>>& groups, const std::vector<std::shared_ptr<student>>& students) {
+    int choice;
+    cout << "\nGroup Menu:\n";
+    cout << "1. Create a Group\n";
+    cout << "2. Add a Student to a Group\n";
+    cout << "3. Display All Groups\n";
+    cout << "0. Back to Main Menu\n";
+    cout << "Enter your choice: ";
+    cin >> choice;
+    cin.ignore();
+
+    switch (choice) {
+    case 1: {
+        auto g = std::make_shared<Group>();
+        g->input();
+        groups.push_back(std::move(g));
+        cout << "\nGroup created successfully!\n";
+        break;
+    }
+    case 2: {
+        Group::addStudentToGroup(groups, students);
+        break;
+    }
+    case 3: {
+        if (groups.empty()) {
+            cout << "No Group objects created yet!\n";
+        }
+        else {
+            cout << "\nAll Groups:\n";
+            for (size_t i = 0; i < groups.size(); ++i) {
+                cout << "Group " << i + 1 << ":\n";
+                groups[i]->affichage();
+                cout << "-----------------\n";
+            }
+        }
+        break;
+    }
+    case 0: return;
+    default: cout << "Invalid choice!\n";
     }
 }

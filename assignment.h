@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+#include <memory>
+
 using namespace std;
 
 class assignment {
@@ -21,6 +24,7 @@ public:
 
     void setGrade(int grade);
     void affichage();
+    void manageAssignmentMenu(std::vector<std::shared_ptr<assignment>>& assignments);
 
     void input(); // Add the input function
 };

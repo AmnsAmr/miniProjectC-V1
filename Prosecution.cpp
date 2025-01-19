@@ -1,11 +1,11 @@
 #include "Prosecution.h"
 #include <iostream>
 prosecution::prosecution() {};
-prosecution::prosecution(vector<string>& guidelines, vector<school>& schoolsList)
+prosecution::prosecution(vector<string>& guidelines, vector<std::shared_ptr<school>>& schoolsList)
     : Guidelines(guidelines), schools(schoolsList) {
 }
 
-vector<school>& prosecution::getSchools() {
+vector<std::shared_ptr<school>>& prosecution::getSchools() {
     return schools;
 }
 
@@ -13,7 +13,7 @@ void prosecution::addGuideline(string& guideline) {
     Guidelines.push_back(guideline);
 }
 
-void prosecution::addSchool(school& s) {
+void prosecution::addSchool(std::shared_ptr<school> s) {
     schools.push_back(s);
 }
 
@@ -25,7 +25,7 @@ void prosecution::affichage() {
 
     cout << "Schools under this prosecution: " << endl;
     for (auto& s : schools) {
-        s.affichage();
+        s->affichage();
     }
 }
 
@@ -50,8 +50,8 @@ void prosecution::input() {
             break;
         }
         case 2: {
-            school s;
-            s.input(); // Assuming School has an input function
+            auto s = std::make_shared<school>();
+            s->input(); // Assuming School has an input function
             addSchool(s);
             cout << "School added successfully.\n";
             break;
@@ -64,5 +64,42 @@ void prosecution::input() {
             break;
         }
         }
+    }
+}
+
+void prosecution::manageProsecutionMenu(std::vector<std::shared_ptr<prosecution>>& prosecutions) {
+    int choice;
+    cout << "\nProsecution Menu:\n";
+    cout << "1. Create a Prosecution\n";
+    cout << "2. Display All Prosecutions\n";
+    cout << "0. Back to Main Menu\n";
+    cout << "Enter your choice: ";
+    cin >> choice;
+    cin.ignore();
+
+    switch (choice) {
+    case 1: {
+        auto p = std::make_shared<prosecution>();
+        p->input();
+        prosecutions.push_back(p);
+        cout << "\nProsecution created successfully!\n";
+        break;
+    }
+    case 2: {
+        if (prosecutions.empty()) {
+            cout << "No Prosecution objects created yet!\n";
+        }
+        else {
+            cout << "\nAll Prosecutions:\n";
+            for (size_t i = 0; i < prosecutions.size(); ++i) {
+                cout << "Prosecution " << i + 1 << ":\n";
+                prosecutions[i]->affichage();
+                cout << "-----------------\n";
+            }
+        }
+        break;
+    }
+    case 0: return;
+    default: cout << "Invalid choice!\n";
     }
 }

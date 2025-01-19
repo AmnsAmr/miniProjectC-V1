@@ -1,4 +1,5 @@
 #include "MinistryOfEducation.h"
+#include "globals.h"
 #include <iostream>
 
 Ministry_of_Education::Ministry_of_Education(const string& name, vector<string> policies, float annualBudget)
@@ -12,7 +13,7 @@ void Ministry_of_Education::addPolicy(string& policy) {
     Policies.push_back(policy);
 }
 
-void Ministry_of_Education::addProsecution(prosecution* p) {
+void Ministry_of_Education::addProsecution(std::shared_ptr<prosecution> p) {
     Prosecutions.push_back(p);
 }
 
@@ -31,7 +32,7 @@ void Ministry_of_Education::affichage() {
     }
 }
 
-void Ministry_of_Education::AllocateBudgetToSchool(school* school, float amount) {
+void Ministry_of_Education::AllocateBudgetToSchool(shared_ptr<school> school, float amount) {
     if (amount > AnnualBudget) {
         cout << "Not enough budget to allocate." << endl;
         return;
@@ -40,7 +41,7 @@ void Ministry_of_Education::AllocateBudgetToSchool(school* school, float amount)
     bool prosecutionApproval = false;
     for (auto& prosecution : Prosecutions) {
         for (auto& s : prosecution->getSchools()) { // Use -> for pointer
-            if (s.getname() == school->getname()) { // Use -> for pointer
+            if (s->getname() == school->getname()) { // Use -> for pointer
                 cout << "Prosecution approved budget allocation for " << school->getname() << "." << endl;
                 prosecutionApproval = true;
                 break;
@@ -71,7 +72,7 @@ void Ministry_of_Education::PublishGuidelines(string& guideline) {
         prosecution->addGuideline(guideline); // Use -> for pointer
 
         for (auto& school : prosecution->getSchools()) { // Use -> for pointer
-            school.addGuideline(guideline);
+            school->addGuideline(guideline);
         }
     }
     cout << "Guideline successfully published to all schools under the Ministry of Education." << endl;
@@ -109,7 +110,7 @@ void Ministry_of_Education::input() {
         cin.ignore(); // Clear the input buffer
 
         if (addProsecutionChoice == 'y' || addProsecutionChoice == 'Y') {
-            prosecution* p = new prosecution();
+            std::shared_ptr<prosecution>  p = std::make_shared<prosecution>();
             p->input(); // Assuming prosecution has an input function
             this->addProsecution(p); // Explicitly call the member function
         }

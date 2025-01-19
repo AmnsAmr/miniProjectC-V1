@@ -4,23 +4,28 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <memory>
 #include "Principal.h"
-#include "Teacher.h"
-#include "Student.h"
+#include "teacher.h"
+//#include "Student.h"
 #include "Group.h"
 #include "Library.h"
+#include "globals.h"
+#include "student.h"
+
 
 using namespace std;
-
+class student;
+class teacher;
 class school {
     string Name;
     principal Principal;
     float budget;
-    int num_student=0;
+    int num_student = 0;
     Library library;
     vector<Group> Groups;
-    vector<student> students;
-    vector<teacher> teachers;
+    vector<std::shared_ptr<student>> Students;
+    vector<std::shared_ptr<teacher>> Teachers;
     vector<string> Guidelines;
     bool hasLibrary = false;
 
@@ -32,12 +37,15 @@ public:
     principal getpricipal();
     Library& getlibrary();
 
-    void addTeacher(teacher& t);
-    void addStudent(student& s);
+    void setlibrary();
+    void addTeacher(std::shared_ptr<teacher> t);
+    void addStudent(std::shared_ptr<student> s);
     void addClassroom(Group& c);
     void addGuideline(string& guideline);
-    void manageLibrary();
+    //void manageLibrary();
+    void manageSchoolMenu(std::vector<std::shared_ptr<school>>& schools, std::vector<std::shared_ptr<student>>& students, std::vector<std::shared_ptr<book>>& books, std::vector<std::unique_ptr<Library>>& library);
 
+    void manageLibrary(std::vector<std::unique_ptr<Library>>& library, std::vector<std::shared_ptr<student>>& students, std::vector<std::shared_ptr<book>>& books, std::vector<std::shared_ptr<school>>& schools);
     void allocateBudget(float amount);
     void affichage();
 

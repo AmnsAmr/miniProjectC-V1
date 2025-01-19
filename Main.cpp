@@ -1,5 +1,4 @@
-// miniProjectC++.cpp
-#include "person.h"
+/*#include "person.h"
 #include "student.h"
 #include "teacher.h"
 #include "principal.h"
@@ -9,37 +8,24 @@
 #include "assignment.h"
 #include "School.h"
 #include "Prosecution.h"
-#include "MinistryOfEducation.h"
+//#include "MinistryOfEducation.h"
 #include "pch.h"
+#include "globals.h"
 
-// Forward declarations
 void displayMainMenu();
-void managePersonMenu(vector<person*>& people);
-void manageStudentMenu(vector<student*>& students, vector<person*>& people, vector<book*>& books, vector<school*>& schools, vector<Library*>& library);
-void manageTeacherMenu(vector<teacher*>& teachers, vector<person*>& people, vector<student*>& students, vector<assignment*>& assignments);
+//void managePersonMenu(vector<person*>& people);
+//void manageTeacherMenu(vector<teacher*>& teachers, vector<person*>& people, vector<student*>& students, vector<assignment*>& assignments);
 void managePrincipalMenu(vector<principal*>& principals, vector<person*>& people);
 void manageBookMenu(vector<book*>& books, vector<Library*>& library, vector<school*>& schools);
-void manageLibraryMenu(vector<Library*>& library, vector<student*>& students, vector<book*>& books, vector<school*>& schools);
-void manageGroupMenu(vector<Group*>& groups, const vector<student*>& students);
-void manageAssignmentMenu(vector<assignment*>& assignments);
+void manageLibraryMenu(vector<Library*>& library, vector<shared_ptr<student>>& students, vector<book*>& books, vector<school*>& schools);
+void manageGroupMenu(vector<Group*>& groups, const vector<shared_ptr<student>>& students);
+void manageAssignmentMenu(vector<shared_ptr<assignment>>& assignments);
 void manageSchoolMenu(vector<school*>& schools, vector<Library*>& library);
 void manageProsecutionMenu(vector<prosecution*>& prosecutions);
-void manageMinistryMenu(Ministry_of_Education* ministry);
+//void manageMinistryMenu(Ministry_of_Education* ministry);
 
 int main() {
     int choice = 0;
-    vector<person*> people;
-    vector<student*> students;
-    vector<teacher*> teachers;
-    vector<principal*> principals;
-    vector<book*> books;
-    vector<Group*> groups;
-    vector<assignment*> assignments;
-    vector<school*> schools;
-    vector<prosecution*> prosecutions;
-    Ministry_of_Education* ministry = new Ministry_of_Education();
-    vector<Library*> libraries;
-
 
     while (true) {
         displayMainMenu();
@@ -47,17 +33,80 @@ int main() {
         cin.ignore();
 
         switch (choice) {
-        case 1: managePersonMenu(people); break;
-        case 2: manageStudentMenu(students, people, books, schools, libraries); break;
-        case 3: manageTeacherMenu(teachers, people, students, assignments); break;
-        case 4: managePrincipalMenu(principals, people); break;
-        case 5: manageBookMenu(books, libraries, schools); break;
-        case 6: manageLibraryMenu(libraries, students, books, schools); break;
-        case 7: manageGroupMenu(groups, students); break;
-        case 8: manageAssignmentMenu(assignments); break;
-        case 9: manageSchoolMenu(schools, libraries); break;
-        case 10: manageProsecutionMenu(prosecutions); break;
-        case 11: manageMinistryMenu(ministry); break;
+            //case 1: managePersonMenu(people); break;
+        case 1: {
+            if (students.empty()) {
+                std::shared_ptr<student> s = std::make_shared<student>();
+                s->input();
+                people.push_back(std::move(s));
+                students.push_back(s);
+                s->manageStudentMenu(students, people, books, schools, libraries);
+
+            }
+            else
+            {
+                cout << "Available students:\n";
+                for (int i = 0; i < students.size(); i++) {
+                    cout << i + 1 << ". " << students[i]->getName() << "\n";
+                }
+                cout << "Enter the number of the student you want to manage: ";
+                int studentIndex;
+                cin >> studentIndex;
+                cin.ignore();
+                if (studentIndex > 0 && studentIndex <= students.size()) {
+                    students[studentIndex - 1]->manageStudentMenu(students, people, books, schools, libraries);
+                }
+                else {
+                    std::shared_ptr<student> s = std::make_shared<student>();
+                    s->input();
+                    people.push_back(std::move(s));
+                    students.push_back(s);
+                    s->manageStudentMenu(students, people, books, schools, libraries);
+                }
+            }
+
+            break;
+        }
+        case 2: {
+            if (teachers.empty()) {
+                std::unique_ptr<teacher> t = std::make_unique<teacher>();
+                t->input();
+                people.push_back(std::move(t));
+                teachers.push_back(std::move(t));
+                t->manageTeacherMenu(teachers, people, students, assignments);
+
+            }
+            else {
+                cout << "Available teachers:\n";
+                for (int i = 0; i < teachers.size(); i++) {
+                    cout << i + 1 << ". " << teachers[i]->getName() << "\n";
+                }
+                cout << "Enter the number of the teacher you want to manage: ";
+                int teacherIndex;
+                cin >> teacherIndex;
+                cin.ignore();
+                if (teacherIndex > 0 && teacherIndex <= teachers.size()) {
+                    teachers[teacherIndex - 1]->manageTeacherMenu(teachers, people, students, assignments);
+                }
+                else {
+                    std::unique_ptr<teacher> t = std::make_unique<teacher>();
+                    t->input();
+                    people.push_back(std::move(t));
+                    teachers.push_back(std::move(t));
+                    t->manageTeacherMenu(teachers, people, students, assignments);
+                }
+            }
+            break;
+        }
+        //case 2: manageTeacherMenu(teachers, people, students, assignments); break;
+        case 3: managePrincipalMenu(principals, people); break;
+        case 4: manageBookMenu(books, libraries, schools); break;
+        case 5: manageLibraryMenu(libraries, students, books, schools); break;
+        case 6: manageGroupMenu(groups, students); break;
+        case 7: manageAssignmentMenu(assignments); break;
+        case 8: manageSchoolMenu(schools, libraries); break;
+        case 9: manageProsecutionMenu(prosecutions); break;
+            //case 11: manageMinistryMenu(ministry); break;
         case 0: {
             cout << "Exiting the program...\n";
             for (auto p : people) delete p;
@@ -69,7 +118,7 @@ int main() {
             for (auto g : assignments) delete g;
             for (auto g : schools) delete g;
             for (auto g : prosecutions) delete g;
-           // delete ministry;
+            // delete ministry;
             return 0;
         }
         default:
@@ -78,62 +127,24 @@ int main() {
     }
     return 0;
 }
-
 void displayMainMenu() {
     cout << "\nMain Menu:\n";
-    cout << "1. Manage Persons\n";
-    cout << "2. Manage Students\n";
-    cout << "3. Manage Teachers\n";
-    cout << "4. Manage Principals\n";
-    cout << "5. Manage Books\n";
-    cout << "6. Manage Library\n";
-    cout << "7. Manage Groups\n";
-    cout << "8. Manage Assignments\n";
-    cout << "9. Manage Schools\n";
-    cout << "10. Manage Prosecutions\n";
+    //cout << "1. Manage Persons\n";
+    cout << "1. Manage Students\n";
+    cout << "2. Manage Teachers\n";
+    cout << "3. Manage Principals\n";
+    cout << "4. Manage Books\n";
+    cout << "5. Manage Library\n";
+    cout << "6. Manage Groups\n";
+    cout << "7. Manage Assignments\n";
+    cout << "8. Manage Schools\n";
+    cout << "9. Manage Prosecutions\n";
     //cout << "11. Manage Ministry of Education\n";
     cout << "0. Exit\n";
     cout << "Enter your choice: ";
 }
 
-void managePersonMenu(vector<person*>& people) {
-    int choice;
-    cout << "\nPerson Menu:\n";
-    cout << "1. Create a Person\n";
-    cout << "2. Display All Persons\n";
-    cout << "0. Back to Main Menu\n";
-    cout << "Enter your choice: ";
-    cin >> choice;
-    cin.ignore();
-
-    switch (choice) {
-    case 1: {
-        person* p = new person();
-        p->input();
-        people.push_back(p);
-        cout << "\nPerson created successfully!\n";
-        break;
-    }
-    case 2: {
-        if (people.empty()) {
-            cout << "No Person objects created yet!\n";
-        }
-        else {
-            cout << "\nAll Persons:\n";
-            for (int i = 0; i < people.size(); ++i) {
-                cout << "Person " << i + 1 << ":\n";
-                people[i]->affichage();
-                cout << "-----------------\n";
-            }
-        }
-        break;
-    }
-    case 0: return;
-    default: cout << "Invalid choice!\n";
-    }
-}
-
-void manageStudentMenu(vector<student*>& students, vector<person*>& people, vector<book*>& books, vector<school*>& schools, vector<Library*>& library) {
+/*void manageStudentMenu(vector<student*>& students, vector<person*>& people, vector<book*>& books, vector<school*>& schools, vector<Library*>& library) {
     int choice;
     cout << "\nStudent Menu:\n";
     cout << "1. Create a Student\n";
@@ -259,8 +270,43 @@ void manageStudentMenu(vector<student*>& students, vector<person*>& people, vect
     default: cout << "Invalid choice!\n";
     }
 }
+/*void managePersonMenu(vector<person*>& people) {
+    int choice;
+    cout << "\nPerson Menu:\n";
+    cout << "1. Create a Person\n";
+    cout << "2. Display All Persons\n";
+    cout << "0. Back to Main Menu\n";
+    cout << "Enter your choice: ";
+    cin >> choice;
+    cin.ignore();
 
-void manageTeacherMenu(vector<teacher*>& teachers, vector<person*>& people, vector<student*>& students, vector<assignment*>& assignments) {
+    switch (choice) {
+    case 1: {
+        person* p = new person();
+        p->input();
+        people.push_back(p);
+        cout << "\nPerson created successfully!\n";
+        break;
+    }
+    case 2: {
+        if (people.empty()) {
+            cout << "No Person objects created yet!\n";
+        }
+        else {
+            cout << "\nAll Persons:\n";
+            for (int i = 0; i < people.size(); ++i) {
+                cout << "Person " << i + 1 << ":\n";
+                people[i]->affichage();
+                cout << "-----------------\n";
+            }
+        }
+        break;
+    }
+    case 0: return;
+    default: cout << "Invalid choice!\n";
+    }
+}
+/*void manageTeacherMenu(vector<teacher*>& teachers, vector<person*>& people, vector<student*>& students, vector<assignment*>& assignments) {
     int choice;
     cout << "\nTeacher Menu:\n";
     cout << "1. Create a Teacher\n";
@@ -908,6 +954,7 @@ void manageSchoolMenu(vector<school*>& schools, vector<Library*>& library) {
         }
         break;
     }
+
     case 0: return;
     default: cout << "Invalid choice!\n";
     }
@@ -949,7 +996,7 @@ void manageProsecutionMenu(vector<prosecution*>& prosecutions) {
     default: cout << "Invalid choice!\n";
     }
 }
-static void manageMinistryMenu(Ministry_of_Education* ministry) {
+/*static void manageMinistryMenu(Ministry_of_Education* ministry) {
     int choice;
     cout << "\nMinistry of Education Menu:\n";
     cout << "1. Create Ministry\n";
@@ -1024,4 +1071,4 @@ static void manageMinistryMenu(Ministry_of_Education* ministry) {
     default:
         cout << "Invalid choice!\n";
     }
-}
+}*/

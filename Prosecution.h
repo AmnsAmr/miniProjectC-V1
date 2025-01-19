@@ -3,21 +3,24 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include "School.h"
 
 class prosecution {
     vector<string> Guidelines;
-    vector<school> schools;
+    vector<std::shared_ptr<school>> schools;
 
 public:
     prosecution();
-    prosecution(vector<string>& guidelines , vector<school>& schoolsList);
+    prosecution(vector<string>& guidelines, vector<std::shared_ptr<school>>& schoolsList);
 
-    vector<school>& getSchools();
+    vector<std::shared_ptr<school>>& getSchools();
     void addGuideline(string& guideline);
-    void addSchool(school& s);
+    void addSchool(std::shared_ptr<school> s);
 
     void affichage();
+    void manageProsecutionMenu(std::vector<std::shared_ptr<prosecution>>& prosecutions);
+
 
     void input(); // Add the input function
 

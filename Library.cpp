@@ -1,5 +1,8 @@
 #include "Library.h"
 #include <iostream>
+#include "School.h"
+#include <algorithm>
+#include <unordered_set>
 
 Library::Library() : Total_capacity(2000), Current_capacity(0) {}
 Library::Library(int total_capacity) : Total_capacity(total_capacity), Current_capacity(0) {}
@@ -130,13 +133,35 @@ void Library::displayMostBorrowedBook() {
     std::cout << mostBorrowed;
 }
 
-void Library::borrowBook(const std::string& studentName, const std::string& bookTitle) {
-    auto studentIt = std::find_if(students.begin(), students.end(), [&studentName](student& s) {
-        return s.getname() == studentName;
-        });
 
-    if (studentIt == students.end()) {
-        std::cout << "Student \"" << studentName << "\" not found.\n";
+void Library::setStudentsBorrowing(student* student) {
+    studentsBorrowing.insert(student);
+}
+void Library::removeStudentsBorrowing(student* student) {
+    studentsBorrowing.erase(student);
+}
+bool Library::isInternalStudent( student* student)  {
+    if (studentsBorrowing.find(student) != studentsBorrowing.end()) {
+        return true;
+    }
+    return false;
+}
+
+void Library::displayStudentsBorrowing() {
+    if (studentsBorrowing.empty()) {
+        std::cout << "No students have borrowed books from this library.\n";
+        return;
+    }
+    std::cout << "Students currently borrowing books from this library:\n";
+    for (const auto& studentPtr : studentsBorrowing) {
+        std::cout << "- " << studentPtr->getName() << " (ID: " << studentPtr->getStudentId() << ")\n";
+    }
+}
+
+// Modified borrowBook function
+void Library::borrowBook(student* student, const std::string& bookTitle) {
+    if (!student) {
+        std::cout << "Invalid student pointer.\n";
         return;
     }
 
@@ -149,23 +174,24 @@ void Library::borrowBook(const std::string& studentName, const std::string& book
         return;
     }
 
-    studentIt->getbooklist().push_back(*bookIt);
+    student->getbooklist().push_back(*bookIt);
     bookIt->getborrow_count()++;
-    books.erase(bookIt);
-    std::cout << "Book \"" << bookTitle << "\" borrowed by \"" << studentName << "\".\n";
-}
+    setStudentsBorrowing(student);
 
-void Library::addStudent(std::string& name, int age, std::string& address, std::string& grade, std::string& parent_contact) {
+    std::cout << "Book \"" << bookTitle << "\" borrowed by \"" << student->getName() << "\".\n";
+}
+/*
+void Library::addStudent(std::string& name, int age, std::string& address, int& grade, std::string& parent_contact) {
     students.emplace_back(name, age, address, grade, parent_contact);
     std::cout << "Student \"" << name << "\" added successfully.\n";
-}
+}*/
 
 void Library::input() {
     int choice = 0;
     while (true) {
         cout << "\nLibrary Menu:\n";
         cout << "1. Add a Book\n";
-        cout << "2. Add a Student\n";
+        // cout << "2. Add a Student\n";
         cout << "0. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
@@ -192,29 +218,29 @@ void Library::input() {
             addBook(title, author, pages, genre);
             break;
         }
-        case 2: {
-            string name, address, grade, parent_contact;
-            int age;
+              /* case 2: {
+                   string name, address,  parent_contact;
+                   int grade, age;
 
-            cout << "Enter Student Name: ";
-            getline(cin, name);
+                   cout << "Enter Student Name: ";
+                   getline(cin, name);
 
-            cout << "Enter Student Age: ";
-            cin >> age;
-            cin.ignore(); // Clear the input buffer
+                   cout << "Enter Student Age: ";
+                   cin >> age;
+                   cin.ignore(); // Clear the input buffer
 
-            cout << "Enter Student Address: ";
-            getline(cin, address);
+                   cout << "Enter Student Address: ";
+                   getline(cin, address);
 
-            cout << "Enter Student Grade: ";
-            getline(cin, grade);
+                   cout << "Enter Student Grade: ";
+                   cin >> grade;
 
-            cout << "Enter Parent Contact: ";
-            getline(cin, parent_contact);
+                   cout << "Enter Parent Contact: ";
+                   getline(cin, parent_contact);
 
-            addStudent(name, age, address, grade, parent_contact);
-            break;
-        }
+                   addStudent(name, age, address, grade, parent_contact);
+                   break;
+               }*/
         case 0: {
             return; // Exit the input function
         }
@@ -223,5 +249,310 @@ void Library::input() {
             break;
         }
         }
+    }
+}
+void Library::manageLibraryMenu(std::vector<std::unique_ptr<Library>>& library, std::vector<std::shared_ptr<student>>& students, std::vector<std::shared_ptr<book>>& books, std::vector<std::shared_ptr<school>>& schools) {
+    int choice;
+    cout << "\nLibrary Menu:\n";
+    cout << "1. Remove a Book from the Library\n";
+    cout << "2. Search for a Book in the Library\n";
+    cout << "3. Display All Books in the Library\n";
+    cout << "4. Borrow a Book from the Library\n";
+    cout << "5. Add a Rating to a Book\n";
+    cout << "6. Display the Most Borrowed Book\n";
+    cout << "7. Display the Highest Rated Books\n";
+    cout << "8. Add Books\n";
+    cout << "9. Display all students that borrow a book\n";
+    cout << "0. Back to Main Menu\n";
+    cout << "Enter your choice: ";
+    cin >> choice;
+    cin.ignore();
+    switch (choice) {
+    case 1: {
+        if (schools.empty()) {
+            cout << "No school was created.\n";
+        }
+        else {
+            cout << "Available schools:\n";
+            for (size_t i = 0; i < schools.size(); i++) {
+                cout << i + 1 << ". " << schools[i]->getname() << "\n";
+            }
+            cout << "Enter the number of the school that you want to remove a book from it's library : ";
+            int schoolIndex;
+            cin >> schoolIndex;
+            cin.ignore();
+            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                if (schools[schoolIndex - 1]->getlibrary().getBooks().empty()) {
+                    cout << "The library is empty\n";
+                }
+                else {
+                    string bookName;
+                    cout << "Enter the name of the book to remove: ";
+                    getline(cin, bookName);
+                    schools[schoolIndex - 1]->getlibrary().removeBook(bookName);
+                }
+            }
+            else {
+                cout << "Invalid school number!\n";
+            }
+        }
+        break;
+    }
+    case 2: {
+        if (schools.empty()) {
+            cout << "No school was created.\n";
+        }
+        else {
+            cout << "Available schools:\n";
+            for (size_t i = 0; i < schools.size(); i++) {
+                cout << i + 1 << ". " << schools[i]->getname() << "\n";
+            }
+            cout << "Enter the number of the school that you want to search a book from it's library : ";
+            int schoolIndex;
+            cin >> schoolIndex;
+            cin.ignore();
+            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                if (schools[schoolIndex - 1]->getlibrary().getBooks().empty()) {
+                    cout << "The library is empty\n";
+                }
+                else {
+                    string keyword;
+                    cout << "Enter a keyword to search for: ";
+                    getline(cin, keyword);
+                    schools[schoolIndex - 1]->getlibrary().searchBook(keyword);
+                }
+            }
+            else {
+                cout << "Invalid school number!\n";
+            }
+        }
+        break;
+    }
+    case 3: {
+        if (schools.empty()) {
+            cout << "No school was created.\n";
+        }
+        else {
+            cout << "Available schools:\n";
+            for (size_t i = 0; i < schools.size(); i++) {
+                cout << i + 1 << ". " << schools[i]->getname() << "\n";
+            }
+            cout << "Enter the number of the school that you want to Display the books from it's library : ";
+            int schoolIndex;
+            cin >> schoolIndex;
+            cin.ignore();
+            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                if (schools[schoolIndex - 1]->getlibrary().getBooks().empty()) {
+                    cout << "The library is empty.\n";
+                }
+                else {
+                    schools[schoolIndex - 1]->getlibrary().affichage();
+                }
+            }
+            else {
+                cout << "Invalid school number!\n";
+            }
+        }
+        break;
+    }
+    case 4: {
+        if (students.empty()) {
+            cout << "No students available to borrow a book.\n";
+        }
+        else if (schools.empty()) {
+            cout << "No school was created.\n";
+        }
+        else {
+            cout << "Available schools:\n";
+            for (size_t i = 0; i < schools.size(); i++) {
+                cout << i + 1 << ". " << schools[i]->getname() << "\n";
+            }
+            cout << "Enter the number of the school that you want to borrow a book from it's library : ";
+            int schoolIndex;
+            cin >> schoolIndex;
+            cin.ignore();
+            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                if (schools[schoolIndex - 1]->getlibrary().getBooks().empty()) {
+                    cout << "The library is empty.\n";
+                }
+                else {
+                    cout << "Available Students:\n";
+                    for (size_t i = 0; i < students.size(); ++i) {
+                        cout << i + 1 << ". " << students[i]->getName() << "\n";
+                    }
+                    cout << "Enter the number of the student: ";
+                    int studentIndex;
+                    cin >> studentIndex;
+                    cin.ignore();
+                    if (studentIndex > 0 && studentIndex <= students.size()) {
+                        string bookName;
+                        cout << "Enter the name of the book to borrow: ";
+                        getline(cin, bookName);
+                        schools[schoolIndex - 1]->getlibrary().borrowBook(students[studentIndex - 1].get(), bookName);
+                    }
+                    else {
+                        cout << "Invalid student number!\n";
+                    }
+                }
+            }
+            else {
+                cout << "Invalid school number!\n";
+            }
+        }
+        break;
+    }
+    case 5: {
+        if (schools.empty()) {
+            cout << "No school was created.\n";
+        }
+        else {
+            cout << "Available schools:\n";
+            for (size_t i = 0; i < schools.size(); i++) {
+                cout << i + 1 << ". " << schools[i]->getname() << "\n";
+            }
+            cout << "Enter the number of the school that you want to add a rating to a book: ";
+            int schoolIndex;
+            cin >> schoolIndex;
+            cin.ignore();
+            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                if (schools[schoolIndex - 1]->getlibrary().getBooks().empty()) {
+                    cout << "The library is empty\n";
+                }
+                else {
+                    if (books.empty()) {
+                        cout << "No books available to rate.\n";
+                    }
+                    else {
+                        cout << "Available Books:\n";
+                        for (size_t i = 0; i < books.size(); ++i) {
+                            cout << i + 1 << ". " << books[i]->gettitle() << "\n";
+                        }
+                        cout << "Enter the number of the book to rate: ";
+                        int bookIndex;
+                        cin >> bookIndex;
+                        cin.ignore();
+                        if (bookIndex > 0 && bookIndex <= books.size()) {
+                            float rating;
+                            cout << "Enter a rating (1-5): ";
+                            cin >> rating;
+                            cin.ignore();
+                            schools[schoolIndex - 1]->getlibrary().addRating(books[bookIndex - 1]->gettitle(), rating);
+                        }
+                        else {
+                            cout << "Invalid book number!\n";
+                        }
+                    }
+                }
+            }
+            else {
+                cout << "Invalid school number!\n";
+            }
+        }
+        break;
+    }
+    case 6: {
+        if (schools.empty()) {
+            cout << "No school was created.\n";
+        }
+        else {
+            cout << "Available schools:\n";
+            for (size_t i = 0; i < schools.size(); i++) {
+                cout << i + 1 << ". " << schools[i]->getname() << "\n";
+            }
+            cout << "Enter the number of the school that you want to Display the most borrowed book from it's library: ";
+            int schoolIndex;
+            cin >> schoolIndex;
+            cin.ignore();
+            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                if (schools[schoolIndex - 1]->getlibrary().getBooks().empty()) {
+                    cout << "The library is empty\n";
+                }
+                else {
+                    schools[schoolIndex - 1]->getlibrary().displayMostBorrowedBook();
+                }
+            }
+            else {
+                cout << "Invalid school number!\n";
+            }
+        }
+        break;
+    }
+    case 7: {
+        if (schools.empty()) {
+            cout << "No school was created.\n";
+        }
+        else {
+            cout << "Available schools:\n";
+            for (size_t i = 0; i < schools.size(); i++) {
+                cout << i + 1 << ". " << schools[i]->getname() << "\n";
+            }
+            cout << "Enter the number of the school that you want to Display the highest rated books from it's library: ";
+            int schoolIndex;
+            cin >> schoolIndex;
+            cin.ignore();
+            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                if (schools[schoolIndex - 1]->getlibrary().getBooks().empty()) {
+                    cout << "The library is empty\n";
+                }
+                else {
+                    int num;
+                    cout << "Enter the number of top-rated books to display: ";
+                    cin >> num;
+                    cin.ignore();
+                    schools[schoolIndex - 1]->getlibrary().displayHighestRatedBooks(num);
+                }
+            }
+            else {
+                cout << "Invalid school number!\n";
+            }
+        }
+        break;
+    }
+    case 8: {
+        if (schools.empty()) {
+            cout << "No School objects created yet!\n";
+        }
+        else {
+            cout << "Available schools:\n";
+            for (size_t i = 0; i < schools.size(); i++) {
+                cout << i + 1 << ". " << schools[i]->getname() << "\n";
+            }
+            cout << "Enter the number of the school to manage the library: ";
+            int schoolIndex;
+            cin >> schoolIndex;
+            cin.ignore();
+            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                schools[schoolIndex - 1]->getlibrary().input();
+            }
+            else {
+                cout << "Invalid school number!\n";
+            }
+        }
+        break;
+    }
+    case 9: {
+        if (schools.empty()) {
+            cout << "No school was created.\n";
+        }
+        else {
+            cout << "Available schools:\n";
+            for (size_t i = 0; i < schools.size(); i++) {
+                cout << i + 1 << ". " << schools[i]->getname() << "\n";
+            }
+            cout << "Enter the number of the school that you want to Display the list of students that borrowed a book from it's library: ";
+            int schoolIndex;
+            cin >> schoolIndex;
+            cin.ignore();
+            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                schools[schoolIndex - 1]->getlibrary().displayStudentsBorrowing();
+            }
+            else {
+                cout << "Invalid school number!\n";
+            }
+        }
+        break;
+    }
+    case 0: return;
+    default: cout << "Invalid choice!\n";
     }
 }

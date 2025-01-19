@@ -1,4 +1,4 @@
-/*#include "person.h"
+#include "person.h"
 #include "student.h"
 #include "teacher.h"
 #include "principal.h"
@@ -8,427 +8,322 @@
 #include "assignment.h"
 #include "School.h"
 #include "Prosecution.h"
-#include "MinistryOfEducation.h"
+//#include "MinistryOfEducation.h"
 #include "pch.h"
+#include "globals.h"
+
+void displayMainMenu();
+
 
 int main() {
     int choice = 0;
-    vector<person*> people; // Store all person objects (including students, teachers, and principals)
-    vector<student*> students; // Store student objects
-    vector<teacher*> teachers; // Store teacher objects
-    vector<principal*> principals; // Store principal objects
-    vector<book*> books; // Store book objects
-    vector<Group*> groups; // Store Group objects
-    vector<assignment*> assignments;
-    vector<school*> schools;
-    vector<prosecution*> prosecutions;
-    Ministry_of_Education* ministry = new Ministry_of_Education();
-    Library library; // Create a library object
 
     while (true) {
-        // Display menu
-        cout << "\nMenu:\n";
-        cout << "1. Create a Person\n";
-        cout << "2. Create a Student\n";
-        cout << "3. Create a Teacher\n";
-        cout << "4. Create a Principal\n";
-        cout << "5. Create a Book\n";
-        cout << "6. Add a Book to the Library\n";
-        cout << "7. Remove a Book from the Library\n";
-        cout << "8. Search for a Book in the Library\n";
-        cout << "9. Display All Books in the Library\n";
-        cout << "10. Borrow a Book from the Library\n";
-        cout << "11. Add a Rating to a Book\n";
-        cout << "12. Display the Most Borrowed Book\n";
-        cout << "13. Display the Highest Rated Books\n";
-        cout << "14. Display All Persons\n";
-        cout << "15. Display All Students\n";
-        cout << "16. Display All Teachers\n";
-        cout << "17. Display All Principals\n";
-        cout << "18. Display All Books\n";
-        cout << "19. Create a Group\n";
-        cout << "20. Add a Student to a Group\n";
-        cout << "21. Display All Groups\n";
-        cout << "22. Create an Assignment\n"; 
-        cout << "23. Display All Assignments\n"; 
-        cout << "24. Create a School\n";
-        cout << "25. Display All Schools\n";
-        cout << "26. Manage Library\n";
-        cout << "27. Create a Prosecution\n";
-        cout << "28. Display All Prosecutions\n";
-        cout << "29. Manage Ministry of Education\n";
-        cout << "0. Exit\n";
-        cout << "Enter your choice: ";
+        displayMainMenu();
         cin >> choice;
-        cin.ignore(); // Clear the input buffer
+        cin.ignore();
 
         switch (choice) {
         case 1: {
-            // Create a Person object
-            person* p = new person();
-            p->input();
-            people.push_back(p); // Add to the vector
-            cout << "\nPerson created successfully!\n";
+            if (students.empty()) {
+                auto s = std::make_shared<student>();
+                s->input();
+                people.push_back(s);
+                students.push_back(s);
+                s->manageStudentMenu(students, people, books, schools, libraries);
+
+            }
+            else
+            {
+                cout << "Available students:\n";
+                for (size_t i = 0; i < students.size(); i++) {
+                    cout << i + 1 << ". " << students[i]->getName() << "\n";
+                }
+                cout << "Enter the number of the student you want to manage: ";
+                int studentIndex;
+                cin >> studentIndex;
+                cin.ignore();
+                if (studentIndex > 0 && studentIndex <= students.size()) {
+                    students[studentIndex - 1]->manageStudentMenu(students, people, books, schools, libraries);
+                }
+                else {
+                    auto s = std::make_shared<student>();
+                    s->input();
+                    people.push_back(s);
+                    students.push_back(s);
+                    s->manageStudentMenu(students, people, books, schools, libraries);
+                }
+            }
+
             break;
         }
         case 2: {
-            // Create a Student object
-            student* s = new student();
-            s->input();
-            people.push_back(s); // Add to the vector
-            students.push_back(s); // Add to the students vector
-            cout << "\nStudent created successfully!\n";
+            if (teachers.empty()) {
+                auto t = std::make_shared<teacher>();
+                t->input();
+                people.push_back(t);
+                teachers.push_back(t);
+                t->manageTeacherMenu(teachers, people, students, assignments);
+
+            }
+            else {
+                cout << "Available teachers:\n";
+                for (size_t i = 0; i < teachers.size(); i++) {
+                    cout << i + 1 << ". " << teachers[i]->getName() << "\n";
+                }
+                cout << "Enter the number of the teacher you want to manage: ";
+                int teacherIndex;
+                cin >> teacherIndex;
+                cin.ignore();
+                if (teacherIndex > 0 && teacherIndex <= teachers.size()) {
+                    teachers[teacherIndex - 1]->manageTeacherMenu(teachers, people, students, assignments);
+                }
+                else {
+                    auto t = std::make_shared<teacher>();
+                    t->input();
+                    people.push_back(t);
+                    teachers.push_back(t);
+                    t->manageTeacherMenu(teachers, people, students, assignments);
+                }
+            }
             break;
         }
         case 3: {
-            // Create a Teacher object
-            teacher* t = new teacher();
-            t->input();
-            people.push_back(t); // Add to the vector
-            teachers.push_back(t); // Add to the teachers vector
-            cout << "\nTeacher created successfully!\n";
+            if (principals.empty()) {
+                auto p = std::make_shared<principal>();
+                p->input();
+                people.push_back(p);
+                principals.push_back(p);
+                p->managePrincipalMenu(principals, people);
+
+            }
+            else {
+                cout << "Available principals:\n";
+                for (size_t i = 0; i < principals.size(); i++) {
+                    cout << i + 1 << ". " << principals[i]->getName() << "\n";
+                }
+                cout << "Enter the number of the principal you want to manage: ";
+                int principalIndex;
+                cin >> principalIndex;
+                cin.ignore();
+                if (principalIndex > 0 && principalIndex <= principals.size()) {
+                    principals[principalIndex - 1]->managePrincipalMenu(principals, people);
+                }
+                else {
+                    auto p = std::make_shared<principal>();
+                    p->input();
+                    people.push_back(p);
+                    principals.push_back(p);
+                    p->managePrincipalMenu(principals, people);
+                }
+            }
             break;
         }
         case 4: {
-            // Create a Principal object
-            principal* pr = new principal();
-            pr->input();
-            people.push_back(pr); // Add to the vector
-            principals.push_back(pr); // Add to the principals vector
-            cout << "\nPrincipal created successfully!\n";
+            if (books.empty()) {
+                auto b = std::make_shared<book>();
+                b->input();
+                books.push_back(b);
+                b->manageBookMenu(books, libraries, schools);
+
+            }
+            else {
+                cout << "Available books:\n";
+                for (size_t i = 0; i < books.size(); i++) {
+                    cout << i + 1 << ". " << books[i]->gettitle() << "\n";
+                }
+                cout << "Enter the number of the book you want to manage: ";
+                int bookIndex;
+                cin >> bookIndex;
+                cin.ignore();
+                if (bookIndex > 0 && bookIndex <= books.size()) {
+                    books[bookIndex - 1]->manageBookMenu(books, libraries, schools);
+                }
+                else {
+                    auto b = std::make_shared<book>();
+                    b->input();
+                    books.push_back(b);
+                    b->manageBookMenu(books, libraries, schools);
+                }
+            }
             break;
         }
         case 5: {
-            // Create a Book object
-            book* b = new book();
-            b->input();
-            books.push_back(b); // Add to the vector
-            cout << "\nBook created successfully!\n";
+            if (libraries.empty()) {
+                cout << "No Library objects created yet!\n";
+            }
+            else {
+                cout << "Available libraries:\n";
+                for (size_t i = 0; i < libraries.size(); i++) {
+                    // Assuming each school has a library, accessing through the school
+                    if (!schools.empty())
+                    {
+
+                        cout << i + 1 << ". Library for " << schools[i]->getname() << "\n";
+
+
+                    }
+                }
+                if (!schools.empty())
+                {
+                    cout << "Enter the number of the library you want to manage: ";
+                    int libraryIndex;
+                    cin >> libraryIndex;
+                    cin.ignore();
+                    if (libraryIndex > 0 && libraryIndex <= libraries.size()) {
+                        schools[libraryIndex - 1]->getlibrary().manageLibraryMenu(libraries, students, books, schools);
+                    }
+                    else {
+                        cout << "Invalid library number!\n";
+                    }
+                }
+                else {
+                    cout << "No schools created yet, a library can only be managed through school!\n";
+                }
+
+            }
+
             break;
         }
         case 6: {
-            // Add a Book to the Library
-            if (books.empty()) {
-                cout << "No books available to add to the library.\n";
+            if (groups.empty()) {
+                auto g = std::make_shared<Group>();
+                g->input();
+                groups.push_back(g);
+                g->manageGroupMenu(groups, students);
+
             }
             else {
-                cout << "Available Books:\n";
-                for (int i = 0; i < books.size(); ++i) {
-                    cout << i + 1 << ". " << books[i]->gettitle() << "\n";
+                cout << "Available groups:\n";
+                for (size_t i = 0; i < groups.size(); i++) {
+                    cout << i + 1 << ". " << groups[i]->getgroup() << "\n";
                 }
-                cout << "Enter the number of the book to add: ";
-                int bookIndex;
-                cin >> bookIndex;
-                cin.ignore(); // Clear the input buffer
-                if (bookIndex > 0 && bookIndex <= books.size()) {
-                    library.addBook(books[bookIndex - 1]->gettitle(),
-                        books[bookIndex - 1]->getauthor(),
-                        books[bookIndex - 1]->getpages(),
-                        books[bookIndex - 1]->getgenre());
+                cout << "Enter the number of the group you want to manage: ";
+                int groupIndex;
+                cin >> groupIndex;
+                cin.ignore();
+                if (groupIndex > 0 && groupIndex <= groups.size()) {
+                    groups[groupIndex - 1]->manageGroupMenu(groups, students);
                 }
                 else {
-                    cout << "Invalid book number!\n";
+                    auto g = std::make_shared<Group>();
+                    g->input();
+                    groups.push_back(g);
+                    g->manageGroupMenu(groups, students);
                 }
             }
             break;
         }
         case 7: {
-            // Remove a Book from the Library
-            string bookName;
-            cout << "Enter the name of the book to remove: ";
-            getline(cin, bookName);
-            library.removeBook(bookName);
+            if (assignments.empty()) {
+                auto a = std::make_shared<assignment>();
+                a->input();
+                assignments.push_back(a);
+                a->manageAssignmentMenu(assignments);
+
+            }
+            else {
+                cout << "Available assignments:\n";
+                for (size_t i = 0; i < assignments.size(); i++) {
+                    cout << i + 1 << ". " << assignments[i]->getTitle() << "\n";
+                }
+                cout << "Enter the number of the assignment you want to manage: ";
+                int assignmentIndex;
+                cin >> assignmentIndex;
+                cin.ignore();
+                if (assignmentIndex > 0 && assignmentIndex <= assignments.size()) {
+                    assignments[assignmentIndex - 1]->manageAssignmentMenu(assignments);
+                }
+                else {
+                    auto a = std::make_shared<assignment>();
+                    a->input();
+                    assignments.push_back(a);
+                    a->manageAssignmentMenu(assignments);
+                }
+            }
             break;
         }
         case 8: {
-            // Search for a Book in the Library
-            string keyword;
-            cout << "Enter a keyword to search for: ";
-            getline(cin, keyword);
-            library.searchBook(keyword);
+            if (schools.empty()) {
+                auto s = std::make_shared<school>();
+                s->input();
+                schools.push_back(s);
+                s->manageSchoolMenu(schools, students, books, libraries);
+
+            }
+            else {
+                cout << "Available schools:\n";
+                for (size_t i = 0; i < schools.size(); i++) {
+                    cout << i + 1 << ". " << schools[i]->getname() << "\n";
+                }
+                cout << "Enter the number of the school you want to manage: ";
+                int schoolIndex;
+                cin >> schoolIndex;
+                cin.ignore();
+                if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                    schools[schoolIndex - 1]->manageSchoolMenu(schools, students, books, libraries);
+                }
+                else {
+                    auto s = std::make_shared<school>();
+                    s->input();
+                    schools.push_back(s);
+                    s->manageSchoolMenu(schools, students, books, libraries);
+                }
+            }
             break;
         }
         case 9: {
-            // Display All Books in the Library
-            library.affichage();
-            break;
-        }
-        case 10: {
-            // Borrow a Book from the Library
-            if (students.empty()) {
-                cout << "No students available to borrow a book.\n";
-            }
-            else {
-                cout << "Available Students:\n";
-                for (int i = 0; i < students.size(); ++i) {
-                    cout << i + 1 << ". " << students[i]->getName() << "\n";
-                }
-                cout << "Enter the number of the student: ";
-                int studentIndex;
-                cin >> studentIndex;
-                cin.ignore(); // Clear the input buffer
-                if (studentIndex > 0 && studentIndex <= students.size()) {
-                    string bookName;
-                    cout << "Enter the name of the book to borrow: ";
-                    getline(cin, bookName);
-                    library.borrowBook(students[studentIndex - 1]->getName(), bookName);
-                }
-                else {
-                    cout << "Invalid student number!\n";
-                }
-            }
-            break;
-        }
-        case 11: {
-            // Add a Rating to a Book
-            if (books.empty()) {
-                cout << "No books available to rate.\n";
-            }
-            else {
-                cout << "Available Books:\n";
-                for (int i = 0; i < books.size(); ++i) {
-                    cout << i + 1 << ". " << books[i]->gettitle() << "\n";
-                }
-                cout << "Enter the number of the book to rate: ";
-                int bookIndex;
-                cin >> bookIndex;
-                cin.ignore(); // Clear the input buffer
-                if (bookIndex > 0 && bookIndex <= books.size()) {
-                    int rating;
-                    cout << "Enter a rating (1-5): ";
-                    cin >> rating;
-                    cin.ignore(); // Clear the input buffer
-                    library.addRating(books[bookIndex - 1]->gettitle(), rating);
-                }
-                else {
-                    cout << "Invalid book number!\n";
-                }
-            }
-            break;
-        }
-        case 12: {
-            // Display the Most Borrowed Book
-            book mostBorrowed = library.getMostBorrowedBook();
-            cout << "Most Borrowed Book:\n";
-            cout << mostBorrowed;
-            break;
-        }
-        case 13: {
-            // Display the Highest Rated Books
-            int num;
-            cout << "Enter the number of top-rated books to display: ";
-            cin >> num;
-            cin.ignore(); // Clear the input buffer
-            vector<book> topRatedBooks = library.highestRatingBooks(num);
-            cout << "Top " << num << " Rated Books:\n";
-            for (auto& b : topRatedBooks) {
-                cout << b;
-            }
-            break;
-        }
-        case 14: {
-            // Display all Person objects
-            if (people.empty()) {
-                cout << "No Person objects created yet!\n";
-            }
-            else {
-                cout << "\nAll Persons:\n";
-                for (int i = 0; i < people.size(); ++i) {
-                    cout << "Person " << i + 1 << ":\n";
-                    people[i]->affichage();
-                    cout << "-----------------\n";
-                }
-            }
-            break;
-        }
-        case 15: {
-            // Display all Student objects
-            if (students.empty()) {
-                cout << "No Student objects created yet!\n";
-            }
-            else {
-                cout << "\nAll Students:\n";
-                for (int i = 0; i < students.size(); ++i) {
-                    cout << "Student " << i + 1 << ":\n";
-                    students[i]->affichage();
-                    cout << "-----------------\n";
-                }
-            }
-            break;
-        }
-        case 16: {
-            // Display all Teacher objects
-            if (teachers.empty()) {
-                cout << "No Teacher objects created yet!\n";
-            }
-            else {
-                cout << "\nAll Teachers:\n";
-                for (int i = 0; i < teachers.size(); ++i) {
-                    cout << "Teacher " << i + 1 << ":\n";
-                    teachers[i]->affichage();
-                    cout << "-----------------\n";
-                }
-            }
-            break;
-        }
-        case 17: {
-            // Display all Principal objects
-            if (principals.empty()) {
-                cout << "No Principal objects created yet!\n";
-            }
-            else {
-                cout << "\nAll Principals:\n";
-                for (int i = 0; i < principals.size(); ++i) {
-                    cout << "Principal " << i + 1 << ":\n";
-                    principals[i]->affichage();
-                    cout << "-----------------\n";
-                }
-            }
-            break;
-        }
-        case 18: {
-            // Display all Book objects
-            if (books.empty()) {
-                cout << "No Book objects created yet!\n";
-            }
-            else {
-                cout << "\nAll Books:\n";
-                for (int i = 0; i < books.size(); ++i) {
-                    cout << "Book " << i + 1 << ":\n";
-                    books[i]->affichage();
-                    cout << "-----------------\n";
-                }
-            }
-            break;
-        }
-        case 19: {
-            // Create a Group object
-            Group* g = new Group();
-            g->input(); // Call the input function to gather group details
-            groups.push_back(g); // Add to the groups vector
-            cout << "\nGroup created successfully!\n";
-            break;
-        }
-        case 20: {
-            // Add a Student to a Group
-            Group::addStudentToGroup(groups, students); // Call the new function
-            break;
-        }
-        case 21: {
-            // Display all Group objects
-            if (groups.empty()) {
-                cout << "No Group objects created yet!\n";
-            }
-            else {
-                cout << "\nAll Groups:\n";
-                for (int i = 0; i < groups.size(); ++i) {
-                    cout << "Group " << i + 1 << ":\n";
-                    groups[i]->affichage();
-                    cout << "-----------------\n";
-                }
-            }
-            break;
-        }
-        case 22: {
-            // Create an Assignment object
-            assignment* a = new assignment();
-            a->input(); // Call the input function to gather assignment details
-            assignments.push_back(a); // Add to the assignments vector
-            cout << "\nAssignment created successfully!\n";
-            break;
-        }
-        case 23: {
-            // Display all Assignment objects
-            if (assignments.empty()) {
-                cout << "No Assignment objects created yet!\n";
-            }
-            else {
-                cout << "\nAll Assignments:\n";
-                for (int i = 0; i < assignments.size(); ++i) {
-                    cout << "Assignment " << i + 1 << ":\n";
-                    assignments[i]->affichage();
-                    cout << "-----------------\n";
-                }
-            }
-            break;
-        }
-        case 24: {
-            // Create a School object
-            school* s = new school();
-            s->input(); // Call the input function to gather school details
-            schools.push_back(s); // Add to the schools vector
-            cout << "\nSchool created successfully!\n";
-            break;
-        }
-        case 25: {
-            // Display all School objects
-            if (schools.empty()) {
-                cout << "No School objects created yet!\n";
-            }
-            else {
-                cout << "\nAll Schools:\n";
-                for (int i = 0; i < schools.size(); ++i) {
-                    cout << "School " << i + 1 << ":\n";
-                    schools[i]->affichage();
-                    cout << "-----------------\n";
-                }
-            }
-            break;
-        }
-        case 26: {
-            // Manage Library
-            library.input(); // Call the input function to manage the library
-            break;
-        }
-        case 27: {
-            // Create a Prosecution object
-            prosecution* p = new prosecution();
-            p->input(); // Call the input function to manage the prosecution
-            prosecutions.push_back(p); // Add to the prosecutions vector
-            cout << "\nProsecution created successfully!\n";
-            break;
-        }
-        case 28: {
-            // Display all Prosecution objects
             if (prosecutions.empty()) {
-                cout << "No Prosecution objects created yet!\n";
+                auto p = std::make_shared<prosecution>();
+                p->input();
+                prosecutions.push_back(p);
+                p->manageProsecutionMenu(prosecutions);
+
             }
             else {
-                cout << "\nAll Prosecutions:\n";
-                for (int i = 0; i < prosecutions.size(); ++i) {
-                    cout << "Prosecution " << i + 1 << ":\n";
-                    prosecutions[i]->affichage();
-                    cout << "-----------------\n";
+                cout << "Available prosecutions:\n";
+                for (size_t i = 0; i < prosecutions.size(); i++) {
+                    cout << i + 1 << ". Prosecution " << i + 1 << "\n";
+                }
+                cout << "Enter the number of the prosecution you want to manage: ";
+                int prosecutionIndex;
+                cin >> prosecutionIndex;
+                cin.ignore();
+                if (prosecutionIndex > 0 && prosecutionIndex <= prosecutions.size()) {
+                    prosecutions[prosecutionIndex - 1]->manageProsecutionMenu(prosecutions);
+                }
+                else {
+                    auto p = std::make_shared<prosecution>();
+                    p->input();
+                    prosecutions.push_back(p);
+                    p->manageProsecutionMenu(prosecutions);
                 }
             }
             break;
         }
-               case 29: {
-            // Manage Ministry of Education
-            ministry->input(); // Call the input function to manage the ministry
-            break;
-        }
+            //case 11: manageMinistryMenu(ministry); break;
         case 0: {
-            // Exit the program
             cout << "Exiting the program...\n";
-
-            // Free dynamically allocated memory
-            for (auto p : people) delete p;
-            for (auto s : students) delete s;
-            for (auto t : teachers) delete t;
-            for (auto pr : principals) delete pr;
-            for (auto b : books) delete b;
-            for (auto g : groups) delete g;
-            for (auto g : assignments) delete g;
-            for (auto g : schools) delete g;
-            for (auto g : prosecutions) delete g;
             return 0;
         }
-        default: {
+        default:
             cout << "Invalid choice! Please try again.\n";
-            break;
-        }
         }
     }
     return 0;
-}*/
+}
+void displayMainMenu() {
+    cout << "\nMain Menu:\n";
+    cout << "1. Manage Students\n";
+    cout << "2. Manage Teachers\n";
+    cout << "3. Manage Principals\n";
+    cout << "4. Manage Books\n";
+    cout << "5. Manage Library\n";
+    cout << "6. Manage Groups\n";
+    cout << "7. Manage Assignments\n";
+    cout << "8. Manage Schools\n";
+    cout << "9. Manage Prosecutions\n";
+    //cout << "11. Manage Ministry of Education\n";
+    cout << "0. Exit\n";
+    cout << "Enter your choice: ";
+}

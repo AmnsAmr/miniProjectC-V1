@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="assignment.cpp" />
     <ClCompile Include="book.cpp" />
+    <ClCompile Include="globals.cpp" />
     <ClCompile Include="Group.cpp" />
     <ClCompile Include="Library.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -147,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="assignment.h" />
     <ClInclude Include="book.h" />
+    <ClInclude Include="globals.h" />
     <ClInclude Include="Group.h" />
     <ClInclude Include="Library.h" />
     <ClInclude Include="MinistryOfEducation.h" />

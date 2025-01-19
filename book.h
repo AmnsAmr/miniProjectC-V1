@@ -4,10 +4,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
-
+#include <memory>
 using std::cout, std::endl, std::string, std::vector, std::ostream;
 class student;
+class Library;
+class school;
 class book {
     string Title;
     string Author;
@@ -38,9 +39,10 @@ public:
     void affichage();
     void input();
     void averagerating();
+    void manageBookMenu(std::vector<std::shared_ptr<book>>& books, std::vector<std::unique_ptr<Library>>& library, std::vector<std::shared_ptr<school>>& schools);
 
     friend class Library;
-    friend ostream& operator<<(ostream& os,book& b);
+    friend ostream& operator<<(ostream& os, book& b);
 };
 
 #endif

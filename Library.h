@@ -6,12 +6,16 @@
 #include <algorithm>
 #include "book.h"
 #include "Student.h"
+#include <memory>
+#include <unordered_set>
 
 class Library {
     std::vector<book> books;
-    std::vector<student> students; // Store students in the library
+    //std::vector<student> students; // Store students in the library
     int Total_capacity;
     int Current_capacity;
+    std::unordered_set<student*> studentsBorrowing; // Track students borrowing books, storing raw pointers
+
 
 public:
     Library();
@@ -29,11 +33,18 @@ public:
     void affichage();
     void addRating(const std::string& bookTitle, float new_rating);
     void displayMostBorrowedBook();
+    bool isInternalStudent(student* student);
+    void displayStudentsBorrowing();
+    void setStudentsBorrowing(student* student);
+    void removeStudentsBorrowing(student* student);
+    // modify the function to take a student ptr
+    void borrowBook(student* student, const std::string& bookTitle);
 
-    void borrowBook(const std::string& studentName, const std::string& bookTitle);
-    void addStudent(std::string& name, int age, std::string& address, std::string& grade, std::string& parent_contact);
+    //void addStudent(std::string& name, int age, std::string& address, int& grade, std::string& parent_contact);
 
     void input(); // Add the input function
+    void manageLibraryMenu(std::vector<std::unique_ptr<Library>>& library, std::vector<std::shared_ptr<student>>& students, std::vector<std::shared_ptr<book>>& books, std::vector<std::shared_ptr<school>>& schools);
+
 };
 
 #endif // LIBRARY_H
