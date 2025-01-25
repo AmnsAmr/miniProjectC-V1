@@ -4,15 +4,15 @@
 #include <algorithm>
 #include <unordered_set>
 
-Library::Library() : Total_capacity(2000), Current_capacity(0) {}
+Library::Library() : Total_capacity(5), Current_capacity(0) {}
 Library::Library(int total_capacity) : Total_capacity(total_capacity), Current_capacity(0) {}
 
-void Library::setbooks(book& b) { books.push_back(b); }
-vector<book> Library::getBooks() { return books; }
+void Library::setbooks(shared_ptr<book> b) { Books.push_back(b); }
+vector<std::shared_ptr<book>> Library::getBooks() const { return Books; }
 
 void Library::addBook(const std::string& title, const std::string& author, int pages, const std::string& genre) {
     if (Current_capacity < Total_capacity) {
-        books.emplace_back(title, author, pages, genre);
+        Books.emplace_back(std::make_shared<book>(title, author, pages, genre));
         Current_capacity++;
         std::cout << "Book added successfully.\n";
     }
@@ -22,56 +22,61 @@ void Library::addBook(const std::string& title, const std::string& author, int p
 }
 
 book Library::getMostBorrowedBook() {
-    if (books.empty()) {
+    if (Books.empty()) {
         std::cerr << "The library has no books to track borrow history.\n";
         return book();
     }
     int max_borrow_count = 0;
-    book most_borrowed_book = books[0];
+    book most_borrowed_book = *Books[0];
 
-    for (auto& b : books) {
-        if (b.Borrow_count > max_borrow_count) {
-            most_borrowed_book = b;
-            max_borrow_count = b.Borrow_count;
+    for (auto& b : Books) {
+        if (b->Borrow_count > max_borrow_count) {
+            most_borrowed_book = *b;
+            max_borrow_count = b->Borrow_count;
         }
     }
     return most_borrowed_book;
 }
 
 void Library::displayHighestRatedBooks(size_t num) {
-    if (books.empty()) {
+    if (Books.empty()) {
         std::cout << "The library has no books to display.\n";
         return;
     }
-    std::vector<book> sortedBooks = books;
-    std::sort(sortedBooks.begin(), sortedBooks.end(), [](book& a, book& b) {
-        return a.getrating() > b.getrating();
+    std::vector<std::shared_ptr<book>> sortedBooks = Books;
+    std::sort(sortedBooks.begin(), sortedBooks.end(), [](std::shared_ptr<book> a, std::shared_ptr<book> b) {
+        return a->getrating() > b->getrating();
         });
     if (num > sortedBooks.size()) {
         num = sortedBooks.size();
     }
     std::cout << "Top " << num << " Rated Books:\n";
     for (int i = 0; i < num; ++i) {
-        std::cout << sortedBooks[i];
+        std::cout << *sortedBooks[i];
     }
 }
 
 std::vector<book> Library::highestRatingBooks(size_t num) {
-    std::vector<book> result = books;
-    std::sort(result.begin(), result.end(), [](book& a, book& b) { return a.Rating > b.Rating; });
+    std::vector<std::shared_ptr<book>> result = Books;
+    std::sort(result.begin(), result.end(), [](std::shared_ptr<book> a, std::shared_ptr<book> b) { return a->Rating > b->Rating; });
     if (result.size() > num) {
         result.resize(num);
     }
-    return result;
+    std::vector<book> returnBooks;
+    for (const auto& bookPtr : result) {
+        returnBooks.push_back(*bookPtr);
+    }
+
+    return returnBooks;
 }
 
 void Library::removeBook(std::string& name) {
-    auto it = std::remove_if(books.begin(), books.end(), [&name](book& b) {
-        return b.gettitle() == name;
+    auto it = std::remove_if(Books.begin(), Books.end(), [&name](std::shared_ptr<book> b) {
+        return b->gettitle() == name;
         });
 
-    if (it != books.end()) {
-        books.erase(it, books.end());
+    if (it != Books.end()) {
+        Books.erase(it, Books.end());
         Current_capacity--;
         std::cout << "Book \"" << name << "\" removed successfully.\n";
     }
@@ -82,9 +87,9 @@ void Library::removeBook(std::string& name) {
 
 void Library::searchBook(std::string& keyword) {
     bool found = false;
-    for (auto& b : books) {
-        if (b.gettitle().find(keyword) != std::string::npos || b.getauthor().find(keyword) != std::string::npos) {
-            std::cout << b;
+    for (auto& b : Books) {
+        if (b->gettitle().find(keyword) != std::string::npos || b->getauthor().find(keyword) != std::string::npos) {
+            std::cout << *b;
             found = true;
         }
     }
@@ -94,22 +99,22 @@ void Library::searchBook(std::string& keyword) {
 }
 
 void Library::affichage() {
-    if (books.empty()) {
+    if (Books.empty()) {
         std::cout << "The library is empty.\n";
         return;
     }
     std::cout << "Books in the library:\n";
-    for (auto& b : books) {
-        std::cout << b;
+    for (auto& b : Books) {
+        std::cout << *b;
     }
 }
 
 void Library::addRating(const std::string& bookTitle, float new_rating) {
-    for (auto& b : books) {
-        if (b.gettitle() == bookTitle) {
+    for (auto& b : Books) {
+        if (b->gettitle() == bookTitle) {
             if (new_rating >= 1 && new_rating <= 5) {
-                b.setratings(new_rating);
-                b.averagerating();
+                b->setratings(new_rating);
+                b->averagerating();
                 std::cout << "Rating added successfully.\n";
             }
             else {
@@ -122,17 +127,16 @@ void Library::addRating(const std::string& bookTitle, float new_rating) {
 }
 
 void Library::displayMostBorrowedBook() {
-    if (books.empty()) {
+    if (Books.empty()) {
         std::cout << "The library has no books to track borrow history.\n";
         return;
     }
-    auto mostBorrowed = *std::max_element(books.begin(), books.end(), [](book& a, book& b) {
-        return a.getborrow_count() < b.getborrow_count();
+    auto mostBorrowed = *std::max_element(Books.begin(), Books.end(), [](std::shared_ptr<book> a, std::shared_ptr<book> b) {
+        return a->getborrow_count() < b->getborrow_count();
         });
     std::cout << "Most Borrowed Book:\n";
-    std::cout << mostBorrowed;
+    std::cout << *mostBorrowed;
 }
-
 
 void Library::setStudentsBorrowing(student* student) {
     studentsBorrowing.insert(student);
@@ -140,7 +144,7 @@ void Library::setStudentsBorrowing(student* student) {
 void Library::removeStudentsBorrowing(student* student) {
     studentsBorrowing.erase(student);
 }
-bool Library::isInternalStudent( student* student)  {
+bool Library::isInternalStudent(student* student) {
     if (studentsBorrowing.find(student) != studentsBorrowing.end()) {
         return true;
     }
@@ -164,92 +168,94 @@ void Library::borrowBook(student* student, const std::string& bookTitle) {
         std::cout << "Invalid student pointer.\n";
         return;
     }
-
-    auto bookIt = std::find_if(books.begin(), books.end(), [&bookTitle](book& b) {
-        return b.gettitle() == bookTitle;
+    auto bookIt = std::find_if(Books.begin(), Books.end(), [&bookTitle](std::shared_ptr<book> b) {
+        return b->gettitle() == bookTitle;
         });
-
-    if (bookIt == books.end()) {
+    if (bookIt == Books.end()) {
         std::cout << "Book \"" << bookTitle << "\" not found in the library.\n";
         return;
     }
-
-    student->getbooklist().push_back(*bookIt);
-    bookIt->getborrow_count()++;
+    student->getbooklist().push_back(**bookIt);
+    (*bookIt)->getborrow_count()++;
     setStudentsBorrowing(student);
+
+    Books.erase(bookIt);
 
     std::cout << "Book \"" << bookTitle << "\" borrowed by \"" << student->getName() << "\".\n";
 }
-/*
-void Library::addStudent(std::string& name, int age, std::string& address, int& grade, std::string& parent_contact) {
-    students.emplace_back(name, age, address, grade, parent_contact);
-    std::cout << "Student \"" << name << "\" added successfully.\n";
-}*/
 
 void Library::input() {
-    int choice = 0;
-    while (true) {
-        cout << "\nLibrary Menu:\n";
-        cout << "1. Add a Book\n";
-        // cout << "2. Add a Student\n";
-        cout << "0. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
-        cin.ignore(); // Clear the input buffer
+    std::string title, author, genre;
+    int pages;
 
-        switch (choice) {
-        case 1: {
-            string title, author, genre;
-            int pages;
+    std::cout << "Enter Book Title: ";
+    std::getline(std::cin, title);
 
-            cout << "Enter Book Title: ";
-            getline(cin, title);
+    std::cout << "Enter Book Author: ";
+    std::getline(std::cin, author);
 
-            cout << "Enter Book Author: ";
-            getline(cin, author);
+    bool validInput = false;
+    while (!validInput) {
+        try {
+            std::cout << "Enter Number of Pages: ";
+            std::cin >> pages;
+            if (std::cin.fail()) {
+                std::cin.clear();  // Clear error flags
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //Clear input buffer
+                throw std::runtime_error("Invalid input. Please enter a valid integer for the number of pages.");
+            }
 
-            cout << "Enter Number of Pages: ";
-            cin >> pages;
-            cin.ignore(); // Clear the input buffer
-
-            cout << "Enter Book Genre: ";
-            getline(cin, genre);
-
-            addBook(title, author, pages, genre);
-            break;
+            validInput = true;
         }
-              /* case 2: {
-                   string name, address,  parent_contact;
-                   int grade, age;
-
-                   cout << "Enter Student Name: ";
-                   getline(cin, name);
-
-                   cout << "Enter Student Age: ";
-                   cin >> age;
-                   cin.ignore(); // Clear the input buffer
-
-                   cout << "Enter Student Address: ";
-                   getline(cin, address);
-
-                   cout << "Enter Student Grade: ";
-                   cin >> grade;
-
-                   cout << "Enter Parent Contact: ";
-                   getline(cin, parent_contact);
-
-                   addStudent(name, age, address, grade, parent_contact);
-                   break;
-               }*/
-        case 0: {
-            return; // Exit the input function
-        }
-        default: {
-            cout << "Invalid choice! Please try again.\n";
-            break;
-        }
+        catch (const std::runtime_error& e) {
+            std::cerr << "Error: " << e.what() << "\n";
         }
     }
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer
+
+    // Define the list of valid genres
+    std::vector<std::string> validGenres = {
+        "Textbooks",
+        "Dictionaries",
+        "Study Guides",
+        "Science",
+        "History",
+        "Mathematics",
+        "Philosophy",
+        "Psychology",
+        "Business/Economics",
+        "Language Learning"
+    };
+
+    // Prompt user to select a genre from list.
+    bool validGenre = false;
+    while (!validGenre) {
+        std::cout << "Available Genres:\n";
+        for (size_t i = 0; i < validGenres.size(); ++i) {
+            std::cout << i + 1 << ". " << validGenres[i] << "\n";
+        }
+        int genreChoice;
+        std::cout << "Select Genre by number: ";
+        std::cin >> genreChoice;
+
+        // Validate the user input and that it is a correct integer
+        if (std::cin.fail() || genreChoice < 1 || genreChoice > validGenres.size()) {
+            std::cout << "Invalid input. Please enter a valid number between 1 and " << validGenres.size() << ".\n";
+            std::cin.clear();  // Clear error flags
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        else {
+            genre = validGenres[genreChoice - 1];
+            validGenre = true;
+        }
+    }
+    // Create a shared_ptr for the new book before adding it
+    std::shared_ptr<book> newBook = std::make_shared<book>(title, author, pages, genre);
+
+    // Add the new book to the global books vector
+    books.push_back(newBook);
+    addBook(title, author, pages, genre);
 }
 void Library::manageLibraryMenu(std::vector<std::unique_ptr<Library>>& library, std::vector<std::shared_ptr<student>>& students, std::vector<std::shared_ptr<book>>& books, std::vector<std::shared_ptr<school>>& schools) {
     int choice;
@@ -261,7 +267,7 @@ void Library::manageLibraryMenu(std::vector<std::unique_ptr<Library>>& library, 
     cout << "5. Add a Rating to a Book\n";
     cout << "6. Display the Most Borrowed Book\n";
     cout << "7. Display the Highest Rated Books\n";
-    cout << "8. Add Books\n";
+    cout << "8. Manage Books\n"; // Changed from "Add Books"
     cout << "9. Display all students that borrow a book\n";
     cout << "0. Back to Main Menu\n";
     cout << "Enter your choice: ";
@@ -522,7 +528,8 @@ void Library::manageLibraryMenu(std::vector<std::unique_ptr<Library>>& library, 
             cin >> schoolIndex;
             cin.ignore();
             if (schoolIndex > 0 && schoolIndex <= schools.size()) {
-                schools[schoolIndex - 1]->getlibrary().input();
+                book tempBook;
+                tempBook.manageBookMenu(books, schools[schoolIndex - 1]->getlibrary(), schools);
             }
             else {
                 cout << "Invalid school number!\n";

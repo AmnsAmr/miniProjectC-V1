@@ -15,15 +15,43 @@ void principal::affichage() {
 }
 
 void principal::input() {
-    person::input(); // Call the base class input function to get Name, Age, and Address
+    person::input();
 
-    std::cout << "Enter Salary: ";
-    std::cin >> salary;
-    std::cin.ignore(); // Clear the input buffer after cin >>
+    bool validInputSalary = false;
+    while (!validInputSalary) {
+        try {
+            std::cout << "Enter Salary: ";
+            std::cin >> salary;
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                throw std::runtime_error("Invalid input. Please enter a valid integer for the salary.");
+            }
+            validInputSalary = true;
+        }
+        catch (const std::runtime_error& e) {
+            std::cerr << "Error: " << e.what() << "\n";
+        }
+    }
 
-    std::cout << "Enter Experience (in years): ";
-    std::cin >> experience;
-    std::cin.ignore(); // Clear the input buffer after cin >>
+    bool validInputExperience = false;
+    while (!validInputExperience) {
+        try {
+            std::cout << "Enter Experience (in years): ";
+            std::cin >> experience;
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                throw std::runtime_error("Invalid input. Please enter a valid integer for the experience (in years).");
+            }
+            validInputExperience = true;
+        }
+        catch (const std::runtime_error& e) {
+            std::cerr << "Error: " << e.what() << "\n";
+        }
+    }
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the buffer
 
     std::cout << "Enter Policies (enter 'done' to finish):\n";
     std::string policy;

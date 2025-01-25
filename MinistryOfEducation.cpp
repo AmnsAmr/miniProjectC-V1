@@ -28,7 +28,7 @@ void Ministry_of_Education::affichage() {
 
     cout << "Prosecutions: " << endl;
     for (auto& prosecution : Prosecutions) {
-        prosecution->affichage(); // Use -> for pointer
+        prosecution->affichage();
     }
 }
 
@@ -40,8 +40,8 @@ void Ministry_of_Education::AllocateBudgetToSchool(shared_ptr<school> school, fl
 
     bool prosecutionApproval = false;
     for (auto& prosecution : Prosecutions) {
-        for (auto& s : prosecution->getSchools()) { // Use -> for pointer
-            if (s->getname() == school->getname()) { // Use -> for pointer
+        for (auto& s : prosecution->getSchools()) {
+            if (s->getname() == school->getname()) {
                 cout << "Prosecution approved budget allocation for " << school->getname() << "." << endl;
                 prosecutionApproval = true;
                 break;
@@ -55,8 +55,8 @@ void Ministry_of_Education::AllocateBudgetToSchool(shared_ptr<school> school, fl
         return;
     }
 
-    if (school->getpricipal().approveBudget(amount)) { // Use -> for pointer
-        school->allocateBudget(amount); // Use -> for pointer
+    if (school->getpricipal().approveBudget(amount)) {
+        school->allocateBudget(amount);
         AnnualBudget -= amount;
         cout << "Allocated " << amount << " to " << school->getname() << "." << endl;
     }
@@ -69,9 +69,9 @@ void Ministry_of_Education::PublishGuidelines(string& guideline) {
     cout << "Ministry of Education publishing guideline: " << guideline << endl;
 
     for (auto& prosecution : Prosecutions) {
-        prosecution->addGuideline(guideline); // Use -> for pointer
+        prosecution->addGuideline(guideline);
 
-        for (auto& school : prosecution->getSchools()) { // Use -> for pointer
+        for (auto& school : prosecution->getSchools()) {
             school->addGuideline(guideline);
         }
     }
@@ -84,19 +84,19 @@ void Ministry_of_Education::input() {
 
     cout << "Enter Annual Budget: ";
     cin >> AnnualBudget;
-    cin.ignore(); // Clear the input buffer
+    cin.ignore();
 
     char addPolicyChoice;
     while (true) {
         cout << "Do you want to add a policy? (y/n): ";
         cin >> addPolicyChoice;
-        cin.ignore(); // Clear the input buffer
+        cin.ignore();
 
         if (addPolicyChoice == 'y' || addPolicyChoice == 'Y') {
             string policy;
             cout << "Enter Policy: ";
             getline(cin, policy);
-            this->addPolicy(policy); // Explicitly call the member function
+            this->addPolicy(policy);
         }
         else {
             break;
@@ -111,8 +111,8 @@ void Ministry_of_Education::input() {
 
         if (addProsecutionChoice == 'y' || addProsecutionChoice == 'Y') {
             std::shared_ptr<prosecution>  p = std::make_shared<prosecution>();
-            p->input(); // Assuming prosecution has an input function
-            this->addProsecution(p); // Explicitly call the member function
+            p->input();
+            this->addProsecution(p);
         }
         else {
             break;

@@ -39,7 +39,7 @@ public:
     void affichage();
     void input();
     void averagerating();
-    void manageBookMenu(std::vector<std::shared_ptr<book>>& books, std::vector<std::unique_ptr<Library>>& library, std::vector<std::shared_ptr<school>>& schools);
+    void manageBookMenu(std::vector<std::shared_ptr<book>>& books, Library& library, std::vector<std::shared_ptr<school>>& schools);
 
     friend class Library;
     friend ostream& operator<<(ostream& os, book& b);

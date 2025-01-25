@@ -41,20 +41,63 @@ void book::affichage() {
 }
 
 void book::input() {
-    cout << "Enter Title: ";
-    std::getline(cin, Title);
 
-    cout << "Enter Author: ";
-    std::getline(cin, Author);
+    bool validTitle = false;
+    while (!validTitle) {
+        std::cout << "Enter Title: ";
+        std::getline(std::cin, Title);
+        if (Title.empty()) {
+            std::cout << "Title cannot be empty. Please enter a title.\n";
+        }
+        else {
+            validTitle = true;
+        }
+    }
 
-    cout << "Enter Number of Pages: ";
-    cin >> Num_page;
-    cin.ignore(); // Clear the input buffer
+    bool validAuthor = false;
+    while (!validAuthor) {
+        std::cout << "Enter Author: ";
+        std::getline(std::cin, Author);
+        if (Author.empty()) {
+            std::cout << "Author cannot be empty. Please enter an author.\n";
+        }
+        else {
+            validAuthor = true;
+        }
+    }
 
-    cout << "Enter Genre: ";
-    std::getline(cin, Genre);
 
-    // Assign a unique Book ID
+    bool validPages = false;
+    while (!validPages) {
+        try {
+            std::cout << "Enter Number of Pages: ";
+            std::cin >> Num_page;
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                throw std::runtime_error("Invalid input. Please enter a valid integer for the number of pages.");
+            }
+            validPages = true;
+        }
+        catch (const std::runtime_error& e) {
+            std::cerr << "Error: " << e.what() << "\n";
+        }
+    }
+
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    bool validGenre = false;
+    while (!validGenre) {
+        std::cout << "Enter Genre: ";
+        std::getline(std::cin, Genre);
+        if (Genre.empty()) {
+            std::cout << "Genre cannot be empty. Please enter a genre.\n";
+        }
+        else {
+            validGenre = true;
+        }
+    }
     Book_id = Book_ID++;
 }
 
@@ -82,13 +125,13 @@ ostream& operator<<(ostream& os, book& b) {
     return os;
 }
 
-void book::manageBookMenu(std::vector<std::shared_ptr<book>>& books, std::vector<std::unique_ptr<Library>>& library, std::vector<std::shared_ptr<school>>& schools) {
+void book::manageBookMenu(std::vector<std::shared_ptr<book>>& books, Library& library, std::vector<std::shared_ptr<school>>& schools) {
     int choice;
     cout << "\nBook Menu:\n";
     cout << "1. Create a Book\n";
-    cout << "2. Add a Book to a library\n";
+    cout << "2. Add a Book to this Library\n"; // Modified prompt
     cout << "3. Display All Books\n";
-    cout << "0. Back to Main Menu\n";
+    cout << "0. Back to Library Menu\n"; // Changed to reflect its integration
     cout << "Enter your choice: ";
     cin >> choice;
     cin.ignore();
@@ -105,40 +148,24 @@ void book::manageBookMenu(std::vector<std::shared_ptr<book>>& books, std::vector
         if (books.empty()) {
             cout << "No books available to add to the library.\n";
         }
-        else if (schools.empty()) {
-            cout << "No school was created to add a book into its library.\n";
-        }
         else {
-            cout << "Available schools:\n";
-            for (size_t i = 0; i < schools.size(); i++) {
-                cout << i + 1 << ". " << schools[i]->getname() << "\n";
+            cout << "Available Books:\n";
+            for (size_t i = 0; i < books.size(); ++i) {
+                cout << i + 1 << ". " << books[i]->gettitle() << "\n";
             }
-            cout << "Enter the number of the school that you want to add a book to its library: ";
-            int schoolIndex;
-            cin >> schoolIndex;
+            cout << "Enter the number of the book to add: ";
+            int bookIndex;
+            cin >> bookIndex;
             cin.ignore();
-            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
-                cout << "Available Books:\n";
-                for (size_t i = 0; i < books.size(); ++i) {
-                    cout << i + 1 << ". " << books[i]->gettitle() << "\n";
-                }
-                cout << "Enter the number of the book to add: ";
-                int bookIndex;
-                cin >> bookIndex;
-                cin.ignore();
-                if (bookIndex > 0 && bookIndex <= books.size()) {
-                    schools[schoolIndex - 1]->getlibrary().addBook(books[bookIndex - 1]->gettitle(),
-                        books[bookIndex - 1]->getauthor(),
-                        books[bookIndex - 1]->getpages(),
-                        books[bookIndex - 1]->getgenre());
-                    cout << "\nBook added successfully to the library!\n";
-                }
-                else {
-                    cout << "Invalid book number!\n";
-                }
+            if (bookIndex > 0 && bookIndex <= books.size()) {
+                library.addBook(books[bookIndex - 1]->gettitle(),
+                    books[bookIndex - 1]->getauthor(),
+                    books[bookIndex - 1]->getpages(),
+                    books[bookIndex - 1]->getgenre());
+                cout << "\nBook added successfully to the library!\n";
             }
             else {
-                cout << "Invalid school number!\n";
+                cout << "Invalid book number!\n";
             }
         }
         break;
@@ -157,7 +184,7 @@ void book::manageBookMenu(std::vector<std::shared_ptr<book>>& books, std::vector
         }
         break;
     }
-    case 0: return;
+    case 0: return; // Return to Library Menu
     default: cout << "Invalid choice!\n";
     }
 }

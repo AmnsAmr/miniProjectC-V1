@@ -119,7 +119,7 @@ int main() {
             }
             break;
         }
-        case 4: {
+       /*case 4: {
             if (books.empty()) {
                 auto b = std::make_shared<book>();
                 b->input();
@@ -147,7 +147,7 @@ int main() {
                 }
             }
             break;
-        }
+        }*/ 
         case 5: {
             if (libraries.empty()) {
                 cout << "No Library objects created yet!\n";
@@ -317,7 +317,7 @@ void displayMainMenu() {
     cout << "1. Manage Students\n";
     cout << "2. Manage Teachers\n";
     cout << "3. Manage Principals\n";
-    cout << "4. Manage Books\n";
+    cout << "4. Manage Books should be removed\n";
     cout << "5. Manage Library\n";
     cout << "6. Manage Groups\n";
     cout << "7. Manage Assignments\n";

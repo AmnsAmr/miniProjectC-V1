@@ -10,8 +10,7 @@
 #include <unordered_set>
 
 class Library {
-    std::vector<book> books;
-    //std::vector<student> students; // Store students in the library
+    vector<std::shared_ptr<book>>Books;
     int Total_capacity;
     int Current_capacity;
     std::unordered_set<student*> studentsBorrowing; // Track students borrowing books, storing raw pointers
@@ -25,8 +24,8 @@ public:
     void displayHighestRatedBooks(size_t num);
     std::vector<book> highestRatingBooks(size_t num);
 
-    void setbooks(book& b);
-    std::vector<book> getBooks();
+    void setbooks(shared_ptr<book> b);
+    vector<std::shared_ptr<book>> getBooks() const;
     void addBook(const std::string& title, const std::string& author, int pages, const std::string& genre);
     void removeBook(std::string& name);
     void searchBook(std::string& keyword);

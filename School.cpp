@@ -51,25 +51,51 @@ void school::manageLibrary(std::vector<std::unique_ptr<Library>>& library, std::
     this->library.manageLibraryMenu(library, students, books, schools);
 }
 void school::input() {
-    cout << "Enter School Name: ";
-    getline(cin, Name);
+    bool validName = false;
+    while (!validName) {
+        std::cout << "Enter School Name: ";
+        std::getline(std::cin, Name);
+        if (Name.empty()) {
+            std::cout << "School name cannot be empty. Please enter a school name.\n";
+        }
+        else {
+            validName = true;
+        }
+    }
 
-    cout << "Enter Principal Details:\n";
+    std::cout << "Enter Principal Details:\n";
     Principal.input();
 
-    cout << "Enter Initial Budget: ";
-    cin >> budget;
-    cin.ignore();
+    bool validBudget = false;
+    while (!validBudget) {
+        try {
+            std::cout << "Enter Initial Budget: ";
+            std::cin >> budget;
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                throw std::runtime_error("Invalid input. Please enter a valid integer for the budget.");
+            }
+            validBudget = true;
+        }
+        catch (const std::runtime_error& e) {
+            std::cerr << "Error: " << e.what() << "\n";
+        }
+    }
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     char addLibrary;
-    cout << "Do you want to add a library? (y/n): ";
-    cin >> addLibrary;
-    cin.ignore();
+    std::cout << "Do you want to add a library? (y/n): ";
+    std::cin >> addLibrary;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
 
     if (addLibrary == 'y' || addLibrary == 'Y') {
-        Library lib;
-        lib.input();
-        library = lib;
+        std::unique_ptr<Library> lib = std::make_unique<Library>();
+        lib->input();
+        library = *lib;
+        libraries.push_back(std::move(lib));
         hasLibrary = true;
     }
 }

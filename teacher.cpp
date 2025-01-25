@@ -30,11 +30,37 @@ void teacher::affichage() {
 // Input teacher details
 void teacher::input() {
     person::input();
-    cout << "Enter Salary: ";
-    cin >> salary;
-    cin.ignore();
-    cout << "Enter Subject: ";
-    getline(cin, subject);
+
+    bool validInputSalary = false;
+    while (!validInputSalary) {
+        try {
+            std::cout << "Enter Salary: ";
+            std::cin >> salary;
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                throw std::runtime_error("Invalid input. Please enter a valid integer for salary.");
+            }
+            validInputSalary = true;
+        }
+        catch (const std::runtime_error& e) {
+            std::cerr << "Error: " << e.what() << "\n";
+        }
+    }
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer
+
+    bool validSubject = false;
+    while (!validSubject) {
+        std::cout << "Enter Subject: ";
+        std::getline(std::cin, subject);
+        if (subject.empty()) {
+            std::cout << "Subject cannot be empty. Please enter a subject.\n";
+        }
+        else {
+            validSubject = true;
+        }
+    }
 }
 
 void teacher::addStudent(std::shared_ptr<student> stud) {

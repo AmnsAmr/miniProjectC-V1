@@ -44,17 +44,25 @@ void student::affichage() {
 
 void student::input() {
     person::input();
-    cout << "Enter Grade: ";
-    cin >> Grade;
-    cin.ignore();
-    /*cout << "Enter Subjects (type 'done' to finish):\n";
-    string subject;
-    while (true) {
-        cout << "Subject: ";
-        getline(cin, subject);
-        if (subject == "done") break;
-        Subjects.push_back(subject);
-    }*/
+
+    bool validInput = false;
+    while (!validInput) {
+        try {
+            std::cout << "Enter Grade: ";
+            std::cin >> Grade;
+            if (std::cin.fail()) {
+                std::cin.clear();  // Clear error flags
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //Clear input buffer
+                throw std::runtime_error("Invalid input. Please enter a valid integer for the grade.");
+            }
+            validInput = true;
+        }
+        catch (const std::runtime_error& e) {
+            std::cerr << "Error: " << e.what() << "\n";
+        }
+    }
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     Student_id = Student_ID++;
 }
 
@@ -72,10 +80,9 @@ void student::addrating(const std::string& bookTitle, float rating) {
     }
 }
 void student::returnbook(Library& library, const std::string& bookTitle) {
-
     for (auto bookIt = Books_borrowed.begin(); bookIt != Books_borrowed.end(); ++bookIt) {
         if (bookIt->gettitle() == bookTitle) {
-            library.setbooks(*bookIt);
+            library.setbooks(std::make_shared<book>(*bookIt));
             Books_borrowed.erase(bookIt);
             std::cout << "Book \"" << bookTitle << "\" returned successfully.\n";
             return;
