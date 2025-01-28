@@ -129,9 +129,9 @@ void book::manageBookMenu(std::vector<std::shared_ptr<book>>& books, Library& li
     int choice;
     cout << "\nBook Menu:\n";
     cout << "1. Create a Book\n";
-    cout << "2. Add a Book to this Library\n"; // Modified prompt
+    cout << "2. Add a Book to this Library\n";
     cout << "3. Display All Books\n";
-    cout << "0. Back to Library Menu\n"; // Changed to reflect its integration
+    cout << "0. Back to Library Menu\n";
     cout << "Enter your choice: ";
     cin >> choice;
     cin.ignore();
@@ -158,11 +158,24 @@ void book::manageBookMenu(std::vector<std::shared_ptr<book>>& books, Library& li
             cin >> bookIndex;
             cin.ignore();
             if (bookIndex > 0 && bookIndex <= books.size()) {
-                library.addBook(books[bookIndex - 1]->gettitle(),
-                    books[bookIndex - 1]->getauthor(),
-                    books[bookIndex - 1]->getpages(),
-                    books[bookIndex - 1]->getgenre());
-                cout << "\nBook added successfully to the library!\n";
+                auto bookToAdd = books[bookIndex - 1];
+                bool bookExists = false;
+                for (const auto& book : library.getBooks()) {
+                    if (book->gettitle() == bookToAdd->gettitle()) {
+                        bookExists = true;
+                        break;
+                    }
+                }
+                if (!bookExists) {
+                    library.addBook(books[bookIndex - 1]->gettitle(),
+                        books[bookIndex - 1]->getauthor(),
+                        books[bookIndex - 1]->getpages(),
+                        books[bookIndex - 1]->getgenre());
+                    cout << "\nBook added successfully to the library!\n";
+                }
+                else {
+                    cout << "This book already exists in the library.\n";
+                }
             }
             else {
                 cout << "Invalid book number!\n";
@@ -184,7 +197,7 @@ void book::manageBookMenu(std::vector<std::shared_ptr<book>>& books, Library& li
         }
         break;
     }
-    case 0: return; // Return to Library Menu
+    case 0: return;
     default: cout << "Invalid choice!\n";
     }
 }

@@ -1,8 +1,8 @@
 #include "principal.h"
 #include <iostream>
 
-principal::principal(std::string n, int a, float sal, int exp, std::vector<std::string> pol)
-    : person(n, a), salary(sal), experience(exp), Policies(pol) {
+principal::principal(std::string n, int a, float sal)
+    : person(n, a), salary(sal) {
 }
 
 bool principal::approveBudget(float amount) {
@@ -11,7 +11,7 @@ bool principal::approveBudget(float amount) {
 
 void principal::affichage() {
     person::affichage();
-    std::cout << "Salary: " << salary << ", Experience: " << experience << " years" << std::endl;
+    std::cout << "Salary: " << salary <<"\n";
 }
 
 void principal::input() {
@@ -32,36 +32,6 @@ void principal::input() {
         catch (const std::runtime_error& e) {
             std::cerr << "Error: " << e.what() << "\n";
         }
-    }
-
-    bool validInputExperience = false;
-    while (!validInputExperience) {
-        try {
-            std::cout << "Enter Experience (in years): ";
-            std::cin >> experience;
-            if (std::cin.fail()) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                throw std::runtime_error("Invalid input. Please enter a valid integer for the experience (in years).");
-            }
-            validInputExperience = true;
-        }
-        catch (const std::runtime_error& e) {
-            std::cerr << "Error: " << e.what() << "\n";
-        }
-    }
-
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the buffer
-
-    std::cout << "Enter Policies (enter 'done' to finish):\n";
-    std::string policy;
-    while (true) {
-        std::cout << "Policy: ";
-        std::getline(std::cin, policy);
-        if (policy == "done") {
-            break;
-        }
-        Policies.push_back(policy);
     }
 }
 

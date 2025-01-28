@@ -11,7 +11,7 @@
 
 class book;
 class school;
-class student : public person {
+class student : public person, public std::enable_shared_from_this<student> {
     int Grade=1;
     float GPA = 0;
     vector<string> Subjects;

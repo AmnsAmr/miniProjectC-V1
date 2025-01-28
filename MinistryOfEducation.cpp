@@ -65,7 +65,7 @@ void Ministry_of_Education::AllocateBudgetToSchool(shared_ptr<school> school, fl
     }
 }
 
-void Ministry_of_Education::PublishGuidelines(string& guideline) {
+/*void Ministry_of_Education::PublishGuidelines(string& guideline) {
     cout << "Ministry of Education publishing guideline: " << guideline << endl;
 
     for (auto& prosecution : Prosecutions) {
@@ -76,7 +76,7 @@ void Ministry_of_Education::PublishGuidelines(string& guideline) {
         }
     }
     cout << "Guideline successfully published to all schools under the Ministry of Education." << endl;
-}
+}*/
 
 void Ministry_of_Education::input() {
     cout << "Enter Ministry of Education Name: ";

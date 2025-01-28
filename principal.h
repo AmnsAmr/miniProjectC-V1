@@ -8,11 +8,9 @@
 
 class principal : public person {
     float salary;
-    int experience;
-    std::vector<std::string> Policies;
 
 public:
-    principal(std::string n = "", int a = 0, float sal = 0.0, int exp = 0, std::vector<std::string> pol = {});
+    principal(std::string n = "", int a = 0, float sal = 0.0);
 
     bool approveBudget(float amount);
     void affichage() override;

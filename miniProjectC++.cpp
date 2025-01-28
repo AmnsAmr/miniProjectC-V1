@@ -7,7 +7,7 @@
 #include "Group.h"
 #include "assignment.h"
 #include "School.h"
-#include "Prosecution.h"
+//#include "Prosecution.h"
 //#include "MinistryOfEducation.h"
 #include "pch.h"
 #include "globals.h"
@@ -272,7 +272,7 @@ int main() {
             }
             break;
         }
-        case 9: {
+        /*case 9: {
             if (prosecutions.empty()) {
                 auto p = std::make_shared<prosecution>();
                 p->input();
@@ -300,7 +300,7 @@ int main() {
                 }
             }
             break;
-        }
+        }*/
             //case 11: manageMinistryMenu(ministry); break;
         case 0: {
             cout << "Exiting the program...\n";
@@ -317,12 +317,12 @@ void displayMainMenu() {
     cout << "1. Manage Students\n";
     cout << "2. Manage Teachers\n";
     cout << "3. Manage Principals\n";
-    cout << "4. Manage Books should be removed\n";
-    cout << "5. Manage Library\n";
-    cout << "6. Manage Groups\n";
-    cout << "7. Manage Assignments\n";
+    //cout << "4. Manage Books \n";
+    //cout << "5. Manage Library\n";
+    //cout << "6. Manage Groups\n";
+    //cout << "7. Manage Assignments\n";
     cout << "8. Manage Schools\n";
-    cout << "9. Manage Prosecutions\n";
+    //cout << "9. Manage Prosecutions\n";
     //cout << "11. Manage Ministry of Education\n";
     cout << "0. Exit\n";
     cout << "Enter your choice: ";

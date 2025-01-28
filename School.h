@@ -21,12 +21,10 @@ class school {
     string Name;
     principal Principal;
     float budget;
-    int num_student = 0;
     Library library;
     vector<Group> Groups;
     vector<std::shared_ptr<student>> Students;
     vector<std::shared_ptr<teacher>> Teachers;
-    vector<string> Guidelines;
     bool hasLibrary = false;
 
 public:
@@ -36,12 +34,12 @@ public:
     string getname();
     principal getpricipal();
     Library& getlibrary();
+    vector<std::shared_ptr<student>>& getStudents();
 
     void setlibrary();
     void addTeacher(std::shared_ptr<teacher> t);
     void addStudent(std::shared_ptr<student> s);
     void addClassroom(Group& c);
-    void addGuideline(string& guideline);
     //void manageLibrary();
     void manageSchoolMenu(std::vector<std::shared_ptr<school>>& schools, std::vector<std::shared_ptr<student>>& students, std::vector<std::shared_ptr<book>>& books, std::vector<std::unique_ptr<Library>>& library);
 

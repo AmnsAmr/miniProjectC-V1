@@ -148,18 +148,26 @@ void student::manageStudentMenu(std::vector<std::shared_ptr<student>>& students,
             cout << "No students available to return books.\n";
         }
         else {
-            if (associatedSchool == nullptr) {
+            if (this->associatedSchool == nullptr) {
                 cout << "The student does not have a school yet.\n";
             }
-            else if (associatedSchool->getlibrary().getBooks().empty())
+            else if (this->associatedSchool->getlibrary().getBooks().empty())
             {
                 cout << "No Library was created in this school or the library is empty.\n";
             }
-            else {
-                string bookName;
-                cout << "Enter the name of the book to return: ";
-                getline(cin, bookName);
-                returnbook(associatedSchool->getlibrary(), bookName);
+            else
+            {
+                if (this->Books_borrowed.empty())
+                {
+                    cout << "The student has no books to return.\n";
+                }
+                else
+                {
+                    string bookName;
+                    cout << "Enter the name of the book to return: ";
+                    getline(cin, bookName);
+                    this->returnbook(this->associatedSchool->getlibrary(), bookName);
+                }
             }
         }
         break;
@@ -169,12 +177,12 @@ void student::manageStudentMenu(std::vector<std::shared_ptr<student>>& students,
             cout << "No students available to rate books.\n";
         }
         else {
-            if (getbooklist().empty()) {
+            if (this->getbooklist().empty()) {
                 cout << "No books available to rate from the student you selected\n";
             }
             else {
                 cout << "Available books to rate:\n";
-                for (book& book : Books_borrowed) {
+                for (book& book : this->Books_borrowed) {
                     cout << "- " << book.gettitle() << "\n";
                 }
                 string bookname;
@@ -184,7 +192,7 @@ void student::manageStudentMenu(std::vector<std::shared_ptr<student>>& students,
                 cout << "Enter the rating for this book (1-5) : ";
                 cin >> rating;
                 cin.ignore();
-                addrating(bookname, rating);
+                this->addrating(bookname, rating);
             }
 
         }
@@ -204,7 +212,20 @@ void student::manageStudentMenu(std::vector<std::shared_ptr<student>>& students,
             cin >> schoolIndex;
             cin.ignore();
             if (schoolIndex > 0 && schoolIndex <= schools.size()) {
-                setAssociatedSchool(schools[schoolIndex - 1].get());
+
+                // Check if the student is already associated with a school
+                if (this->associatedSchool != nullptr) {
+                    // Remove student from the previous school list
+                    auto& currentSchoolStudents = this->associatedSchool->getStudents();
+                    auto it = std::remove_if(currentSchoolStudents.begin(), currentSchoolStudents.end(),
+                        [this](const std::shared_ptr<student>& s) {return s.get() == this; });
+                    currentSchoolStudents.erase(it, currentSchoolStudents.end());
+                }
+
+
+                // Set the new school association
+                this->setAssociatedSchool(schools[schoolIndex - 1].get());
+                schools[schoolIndex - 1]->addStudent(shared_from_this());// Add to the school's student list
                 cout << "The student is now associated with school: " << schools[schoolIndex - 1]->getname() << "\n";
             }
             else {

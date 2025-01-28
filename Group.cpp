@@ -116,7 +116,7 @@ void Group::manageGroupMenu(std::vector<std::shared_ptr<Group>>& groups, const s
         break;
     }
     case 2: {
-        Group::addStudentToGroup(groups, students);
+        this->addStudentToGroup(groups, students);
         break;
     }
     case 3: {
