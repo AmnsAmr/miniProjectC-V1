@@ -1,12 +1,13 @@
 #include "Group.h"
+#include "School.h"
 #include <iostream>
 
-Group::Group(std::string g, int rn, std::vector<teacher> t) : group(g), roomnumber(rn), Teachers(t) {}
+Group::Group(std::string g, int rn, std::vector<std::shared_ptr<teacher>> t) : group(g), roomnumber(rn), Teachers(t) {}
 Group::Group() : roomnumber(0), capacity(5) {}
 
-string Group::getgroup() { return group; }
+std::string Group::getgroup() { return group; }
 
-void Group::addStudent(student& s) {
+void Group::addStudent(std::shared_ptr<student> s) {
     if (students.size() < capacity) {
         students.push_back(s);
     }
@@ -14,16 +15,21 @@ void Group::addStudent(student& s) {
         std::cout << "Classroom is full!" << std::endl;
     }
 }
+void Group::addTeacher(std::shared_ptr<teacher> t) {
+    Teachers.push_back(t);
+
+}
+
 
 void Group::affichage() {
     std::cout << "Group Name: " << group << ", Room Number: " << roomnumber << ", Capacity: " << capacity << std::endl;
     std::cout << "Teachers: \n";
-    for (auto& t : Teachers) {
-        t.affichage();
+    for (const auto& t : Teachers) {
+        std::cout << " -" << t->getName() << "\n";
     }
     std::cout << "Students: " << std::endl;
-    for (auto& student : students) {
-        student.affichage();
+    for (const auto& student : students) {
+        std::cout << " -" << student->getName() << "\n";
     }
 }
 
@@ -35,105 +41,119 @@ void Group::input() {
     // Input room number
     std::cout << "Enter the room number: ";
     std::cin >> roomnumber;
-    std::cin.ignore(); // Clear the input buffer
-
-    // Input teachers (optional)
-    char addTeacher;
-    std::cout << "Do you want to add a teacher to the group? (y/n): ";
-    std::cin >> addTeacher;
-    std::cin.ignore(); // Clear the input buffer
-
-    if (addTeacher == 'y' || addTeacher == 'Y') {
-        std::string teacherName;
-        std::cout << "Enter the teacher's name: ";
-        std::getline(std::cin, teacherName);
-
-        // Create a temporary teacher object
-        teacher t(teacherName, 0, "", 0.0, 0); // Assuming default values for other attributes
-        Teachers.push_back(t);
-    }
+    std::cin.ignore();
 }
 
-// New function implementation
-void Group::addStudentToGroup(std::vector<std::shared_ptr<Group>>& groups, const std::vector<std::shared_ptr<student>>& students) {
-    if (groups.empty()) {
-        std::cout << "No groups available to add a student.\n";
-    }
-    else if (students.empty()) {
-        std::cout << "No students available to add to a group.\n";
-    }
-    else {
-        std::cout << "Available Groups:\n";
-        for (int i = 0; i < groups.size(); ++i) {
-            std::cout << i + 1 << ". " << groups[i]->group << "\n";
-        }
-        std::cout << "Enter the number of the group: ";
-        int groupIndex;
-        std::cin >> groupIndex;
-        std::cin.ignore(); // Clear the input buffer
 
-        if (groupIndex > 0 && groupIndex <= groups.size()) {
-            std::cout << "Available Students:\n";
-            for (int i = 0; i < students.size(); ++i) {
-                std::cout << i + 1 << ". " << students[i]->getName() << "\n";
-            }
-            std::cout << "Enter the number of the student: ";
-            int studentIndex;
-            std::cin >> studentIndex;
-            std::cin.ignore(); // Clear the input buffer
-
-            if (studentIndex > 0 && studentIndex <= students.size()) {
-                groups[groupIndex - 1]->addStudent(*students[studentIndex - 1]);
-                std::cout << "\nStudent added to the group successfully!\n";
-            }
-            else {
-                std::cout << "Invalid student number!\n";
-            }
-        }
-        else {
-            std::cout << "Invalid group number!\n";
-        }
-    }
-}
-
-void Group::manageGroupMenu(std::vector<std::shared_ptr<Group>>& groups, const std::vector<std::shared_ptr<student>>& students) {
+void Group::manageGroupMenu(std::vector<std::shared_ptr<Group>>& groups, std::shared_ptr<school> currentSchool) {
     int choice;
-    cout << "\nGroup Menu:\n";
-    cout << "1. Create a Group\n";
-    cout << "2. Add a Student to a Group\n";
-    cout << "3. Display All Groups\n";
-    cout << "0. Back to Main Menu\n";
-    cout << "Enter your choice: ";
-    cin >> choice;
-    cin.ignore();
+    std::cout << "\nGroup Menu:\n";
+    std::cout << "1. Create a Group\n";
+    std::cout << "2. Add a Student to this Group\n";
+    std::cout << "3. Add a Teacher to this Group\n";
+    std::cout << "4. Display the Groups\n";
+    std::cout << "0. Back to Main Menu\n";
+    std::cout << "Enter your choice: ";
+    std::cin >> choice;
+    std::cin.ignore();
 
     switch (choice) {
     case 1: {
         auto g = std::make_shared<Group>();
         g->input();
         groups.push_back(std::move(g));
-        cout << "\nGroup created successfully!\n";
+        std::cout << "\nGroup created successfully!\n";
         break;
     }
     case 2: {
-        this->addStudentToGroup(groups, students);
-        break;
-    }
-    case 3: {
-        if (groups.empty()) {
-            cout << "No Group objects created yet!\n";
+        if (!currentSchool) {
+            std::cout << "Error: No school associated with this group.\n";
+            break;
+        }
+        if (currentSchool->getStudents().empty()) {
+            std::cout << "No students available to add to a group in this school.\n";
         }
         else {
-            cout << "\nAll Groups:\n";
-            for (size_t i = 0; i < groups.size(); ++i) {
-                cout << "Group " << i + 1 << ":\n";
-                groups[i]->affichage();
-                cout << "-----------------\n";
+            std::cout << "Available Students:\n";
+            for (int i = 0; i < currentSchool->getStudents().size(); ++i) {
+                std::cout << i + 1 << ". " << currentSchool->getStudents()[i]->getName() << "\n";
+            }
+            std::cout << "Enter the number of the student: ";
+            int studentIndex;
+            std::cin >> studentIndex;
+            std::cin.ignore();
+
+            if (studentIndex > 0 && studentIndex <= currentSchool->getStudents().size()) {
+                bool studentExists = false;
+                for (const auto& student : this->students) {
+                    if (student == currentSchool->getStudents()[studentIndex - 1])
+                    {
+                        studentExists = true;
+                        break;
+                    }
+                }
+                if (!studentExists) {
+                    this->addStudent(currentSchool->getStudents()[studentIndex - 1]);
+                    std::cout << "\nStudent added to the group successfully!\n";
+                }
+                else {
+                    std::cout << "This student is already in this group\n";
+                }
+            }
+            else {
+                std::cout << "Invalid student number!\n";
             }
         }
         break;
     }
+    case 3: {
+        if (!currentSchool) {
+            std::cout << "Error: No school associated with this group.\n";
+            break;
+        }
+        if (currentSchool->getTeachers().empty()) {
+            std::cout << "No teachers available to add to a group in this school.\n";
+        }
+        else {
+            std::cout << "Available Teachers:\n";
+            for (int i = 0; i < currentSchool->getTeachers().size(); ++i) {
+                std::cout << i + 1 << ". " << currentSchool->getTeachers()[i]->getName() << "\n";
+            }
+            std::cout << "Enter the number of the teacher: ";
+            int teacherIndex;
+            std::cin >> teacherIndex;
+            std::cin.ignore();
+
+            if (teacherIndex > 0 && teacherIndex <= currentSchool->getTeachers().size()) {
+                bool teacherExists = false;
+                for (const auto& teacher : this->Teachers) {
+                    if (teacher == currentSchool->getTeachers()[teacherIndex - 1])
+                    {
+                        teacherExists = true;
+                        break;
+                    }
+                }
+                if (!teacherExists) {
+                    this->addTeacher(currentSchool->getTeachers()[teacherIndex - 1]);
+                    std::cout << "\nTeacher added to the group successfully!\n";
+                }
+                else {
+                    std::cout << "This teacher is already in this group\n";
+                }
+            }
+            else {
+                std::cout << "Invalid teacher number!\n";
+            }
+        }
+        break;
+    }
+    case 4: {
+        std::cout << "\nCurrent Group Details:\n";
+        this->affichage();
+        std::cout << "-----------------\n";
+        break;
+    }
     case 0: return;
-    default: cout << "Invalid choice!\n";
+    default: std::cout << "Invalid choice!\n";
     }
 }

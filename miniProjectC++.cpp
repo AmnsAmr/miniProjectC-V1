@@ -7,8 +7,6 @@
 #include "Group.h"
 #include "assignment.h"
 #include "School.h"
-//#include "Prosecution.h"
-//#include "MinistryOfEducation.h"
 #include "pch.h"
 #include "globals.h"
 
@@ -148,7 +146,7 @@ int main() {
             }
             break;
         }*/ 
-        case 5: {
+        /**/case 5: {
             if (libraries.empty()) {
                 cout << "No Library objects created yet!\n";
             }
@@ -185,7 +183,7 @@ int main() {
 
             break;
         }
-        case 6: {
+        /*case 6: {
             if (groups.empty()) {
                 auto g = std::make_shared<Group>();
                 g->input();
@@ -213,8 +211,8 @@ int main() {
                 }
             }
             break;
-        }
-        case 7: {
+        }*/
+        /*case 7: {
             if (assignments.empty()) {
                 auto a = std::make_shared<assignment>();
                 a->input();
@@ -242,7 +240,7 @@ int main() {
                 }
             }
             break;
-        }
+        }*/
         case 8: {
             if (schools.empty()) {
                 auto s = std::make_shared<school>();

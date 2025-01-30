@@ -1,13 +1,15 @@
 #include "School.h"
 
 
-school::school(string n, principal p, float b, Library c) : Name(n), Principal(p), budget(b), library(c) { hasLibrary = true; }
-school::school(string n, principal p, float b) : Name(n), Principal(p), budget(b) {}
+school::school(string n, principal p, Library c) : Name(n), Principal(p), library(c) { hasLibrary = true; }
+school::school(string n, principal p) : Name(n), Principal(p) {}
 
 string school::getname() { return Name; }
 principal school::getpricipal() { return Principal; }
 Library& school::getlibrary() { return library; }
 vector<std::shared_ptr<student>>& school::getStudents() { return Students; }
+vector<std::shared_ptr<Group>>& school::getGroups() { return Groups; }
+std::vector<std::shared_ptr<teacher>>& school::getTeachers() {return Teachers;}
 
 
 void school::setlibrary() {}
@@ -16,17 +18,15 @@ void school::addTeacher(std::shared_ptr<teacher> t) { Teachers.push_back(t); }
 
 void school::addStudent(std::shared_ptr<student> s) { Students.push_back(s); }
 
-void school::addClassroom(Group& c) { Groups.push_back(c); }
+void school::addClassroom(std::shared_ptr<Group> c) { Groups.push_back(c); }
 
 
-void school::allocateBudget(float amount) { budget += amount; }
 
 void school::affichage() {
     cout << "School Details:\n";
     cout << "Name: " << Name << "\n";
     cout << "Principal: ";
     Principal.affichage();
-    cout << "Budget: " << budget << "\n";
 
     cout << "Teachers:\n";
     if (Teachers.empty()) {
@@ -55,7 +55,7 @@ void school::affichage() {
     else {
         for (auto& classroom : Groups) {
             cout << "  - ";
-            classroom.affichage();
+            classroom->affichage();
             cout << "\n";
         }
     }
@@ -88,24 +88,6 @@ void school::input() {
     std::cout << "Enter Principal Details:\n";
     Principal.input();
 
-    bool validBudget = false;
-    while (!validBudget) {
-        try {
-            std::cout << "Enter Initial Budget: ";
-            std::cin >> budget;
-            if (std::cin.fail()) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                throw std::runtime_error("Invalid input. Please enter a valid integer for the budget.");
-            }
-            validBudget = true;
-        }
-        catch (const std::runtime_error& e) {
-            std::cerr << "Error: " << e.what() << "\n";
-        }
-    }
-
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     char addLibrary;
     std::cout << "Do you want to add a library? (y/n): ";
@@ -133,6 +115,7 @@ void school::manageSchoolMenu(std::vector<std::shared_ptr<school>>& schools, std
     cout << "5. Add a Teacher to the school\n";
     cout << "6. Manage Students in this School\n";
     cout << "7. Manage Teachers in this School\n";
+    cout << "8. Manage Groups in this School\n";
     cout << "0. Back to Main Menu\n";
     cout << "Enter your choice: ";
     cin >> choice;
@@ -286,6 +269,33 @@ void school::manageSchoolMenu(std::vector<std::shared_ptr<school>>& schools, std
                 cout << "Invalid teacher number.\n";
             }
         }
+        break;
+    }
+    case 8: {
+        if (Groups.empty()) {
+            cout << "No groups in this school to manage. Creating a new one.\n";
+            auto g = std::make_shared<Group>();
+            g->input();
+            this->addClassroom(g);
+            cout << "\nGroup created successfully!\n";
+        }
+        else {
+            cout << "Available groups in this school:\n";
+            for (size_t i = 0; i < Groups.size(); ++i) {
+                cout << i + 1 << ". " << Groups[i]->getgroup() << "\n";
+            }
+            cout << "Enter the number of the group to manage: ";
+            int groupIndex;
+            cin >> groupIndex;
+            cin.ignore();
+            if (groupIndex > 0 && groupIndex <= Groups.size()) {
+                Groups[groupIndex - 1]->manageGroupMenu(groups, shared_from_this());
+            }
+            else {
+                cout << "Invalid group number.\n";
+            }
+        }
+
         break;
     }
     case 0: return;

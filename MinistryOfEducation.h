@@ -21,7 +21,7 @@ public:
 
     void affichage();
     void AllocateBudgetToSchool(shared_ptr<school> school, float amount); // Accept a pointer to school
-    void PublishGuidelines(string& guideline);
+    //void PublishGuidelines(string& guideline);
 
     void input(); // Add the input function
 };

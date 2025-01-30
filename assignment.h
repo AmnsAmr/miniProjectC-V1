@@ -8,15 +8,16 @@
 
 using namespace std;
 
+class teacher;
+
 class assignment {
     string Title;
     string Description;
-    long long Due_date;
     int Grade;
     bool isDone;
 
 public:
-    assignment(string title = "", string description = "", long long duedate = 0);
+    assignment(string title = "", string description = "");
 
     string getTitle();
     string getDescription();
@@ -24,9 +25,10 @@ public:
 
     void setGrade(int grade);
     void affichage();
-    void manageAssignmentMenu(std::vector<std::shared_ptr<assignment>>& assignments);
+    void manageAssignmentMenu();
 
-    void input(); // Add the input function
+    void input();
+    friend class teacher;
 };
 
 #endif // ASSIGNMENT_H

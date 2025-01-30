@@ -137,10 +137,8 @@
     <ClCompile Include="Library.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="miniProjectC++.cpp" />
-    <ClCompile Include="MinistryOfEducation.cpp" />
     <ClCompile Include="Person.cpp" />
     <ClCompile Include="principal.cpp" />
-    <ClCompile Include="Prosecution.cpp" />
     <ClCompile Include="School.cpp" />
     <ClCompile Include="Student.cpp" />
     <ClCompile Include="teacher.cpp" />
@@ -151,11 +149,9 @@
     <ClInclude Include="globals.h" />
     <ClInclude Include="Group.h" />
     <ClInclude Include="Library.h" />
-    <ClInclude Include="MinistryOfEducation.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Person.h" />
     <ClInclude Include="principal.h" />
-    <ClInclude Include="Prosecution.h" />
     <ClInclude Include="School.h" />
     <ClInclude Include="Student.h" />
     <ClInclude Include="teacher.h" />

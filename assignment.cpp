@@ -1,7 +1,11 @@
 #include "assignment.h"
+#include "teacher.h"
+#include <vector>
+#include <memory>
+using namespace std;
 
-assignment::assignment(string title, string description, long long duedate)
-    : Title(title), Description(description), Due_date(duedate), Grade(0), isDone(false) {
+assignment::assignment(string title, string description)
+    : Title(title), Description(description), Grade(0), isDone(false) {
 }
 
 string assignment::getTitle() { return Title; }
@@ -21,7 +25,6 @@ void assignment::setGrade(int grade) {
 void assignment::affichage() {
     cout << "Title: " << Title << "\n";
     cout << "Description: " << Description << "\n";
-    cout << "Due Date: " << Due_date << "\n";
     cout << "Grade: " << Grade << "\n";
     cout << "Completed: " << (isDone ? "Yes" : "No") << "\n";
 }
@@ -32,38 +35,56 @@ void assignment::input() {
 
     cout << "Enter Assignment Description: ";
     getline(cin, Description);
-
-    cout << "Enter Due Date (as a timestamp, e.g., 20231015 for October 15, 2023): ";
-    cin >> Due_date;
-    cin.ignore(); // Clear the input buffer
 }
-
-void assignment::manageAssignmentMenu(std::vector<std::shared_ptr<assignment>>& assignments) {
+void assignment::manageAssignmentMenu() {
     int choice;
     cout << "\nAssignment Menu:\n";
-    cout << "1. Create an Assignment\n";
-    cout << "2. Display All Assignments\n";
-    cout << "0. Back to Main Menu\n";
+    cout << "1. Create an Assignment for this teacher\n";
+    cout << "2. Display Assignments for this teacher\n";
+    cout << "0. Back to Teacher Menu\n";
     cout << "Enter your choice: ";
     cin >> choice;
     cin.ignore();
+
+
+    teacher* currentTeacher = nullptr;
+
+
+    for (auto& teacherPtr : teacher::getTeachers()) {
+        for (const auto& assignmentPtr : teacherPtr->Assignments) {
+            if (assignmentPtr.get() == this) {
+                currentTeacher = teacherPtr.get();
+                break;
+            }
+        }
+        if (currentTeacher) {
+            break;
+        }
+    }
+    if (currentTeacher == nullptr) {
+        cout << "Error: This assignment is not associated with a teacher.\n";
+        return;
+    }
+
+
+
     switch (choice) {
     case 1: {
         auto a = std::make_shared<assignment>();
         a->input();
-        assignments.push_back(a);
+        currentTeacher->Assignments.push_back(a);
         cout << "\nAssignment created successfully!\n";
         break;
     }
     case 2: {
-        if (assignments.empty()) {
-            cout << "No Assignment objects created yet!\n";
+        if (currentTeacher->Assignments.empty()) {
+            cout << "No Assignment objects created for this teacher yet!\n";
         }
         else {
             cout << "\nAll Assignments:\n";
-            for (size_t i = 0; i < assignments.size(); ++i) {
+            for (size_t i = 0; i < currentTeacher->Assignments.size(); ++i) {
                 cout << "Assignment " << i + 1 << ":\n";
-                assignments[i]->affichage();
+                currentTeacher->Assignments[i]->affichage();
                 cout << "-----------------\n";
             }
         }

@@ -45,12 +45,6 @@
     <ClCompile Include="School.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Prosecution.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MinistryOfEducation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -87,12 +81,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="School.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Prosecution.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MinistryOfEducation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="globals.h">

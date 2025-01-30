@@ -7,26 +7,29 @@
 #include "teacher.h"
 #include <memory>
 
+class school; // Forward declaration
 class Group {
     std::string group;
     int roomnumber;
     int capacity = 5;
-    std::vector<student> students;
-    std::vector<teacher> Teachers;
+    std::vector<std::shared_ptr<student>> students;
+    std::vector<std::shared_ptr<teacher>> Teachers;
+
 
 public:
     Group();
-    Group(std::string g, int rn, std::vector<teacher> t);
+    Group(std::string g, int rn, std::vector<std::shared_ptr<teacher>> t);
 
-    string getgroup();
+    std::string getgroup();
 
-    void addStudent(student& s);
+    void addStudent(std::shared_ptr<student> s);
+    void addTeacher(std::shared_ptr<teacher> t);
+
     void input();
     void affichage();
-    void manageGroupMenu(std::vector<std::shared_ptr<Group>>& groups, const std::vector<std::shared_ptr<student>>& students);
+    void manageGroupMenu(std::vector<std::shared_ptr<Group>>& groups, std::shared_ptr<school> currentSchool);
 
-    // New function to add a student to a group
-    static void addStudentToGroup(std::vector<std::shared_ptr<Group>>& groups, const std::vector<std::shared_ptr<student>>& students);
+
 };
 
-#endif // GROUP_H
+#endif

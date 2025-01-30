@@ -4,10 +4,15 @@
 #include <iostream>
 using namespace std;
 
+std::vector<std::shared_ptr<teacher>> teacher::allTeachers;
+
+std::vector<std::shared_ptr<teacher>>& teacher::getTeachers() {
+    return allTeachers;
+}
 // Constructor
 
 teacher::teacher(string name, int age, string address, float sal, string sub, int exp, bool fullTime)
-    : person(name, age, address), salary(sal), subject(sub){
+    : person(name, age, address), salary(sal), subject(sub) {
 }
 
 // Display teacher details
@@ -24,6 +29,16 @@ void teacher::affichage() {
     }
     else {
         cout << "No students assigned.\n";
+    }
+    if (!Assignments.empty()) {
+        cout << "Assignments:\n";
+        for (size_t i = 0; i < Assignments.size(); i++) {
+            cout << "  - ";
+            Assignments[i]->affichage();
+        }
+    }
+    else {
+        cout << "No assignments assigned.\n";
     }
 }
 
@@ -67,6 +82,11 @@ void teacher::addStudent(std::shared_ptr<student> stud) {
     students.push_back(stud);
 }
 
+void teacher::addAssignment(std::shared_ptr<assignment> ass)
+{
+    Assignments.push_back(ass);
+}
+
 // Assign homework to all students
 void teacher::AssignHomework(std::shared_ptr<assignment> homework) {
     for (auto& stud : students) {
@@ -98,6 +118,7 @@ void teacher::manageTeacherMenu(vector<std::shared_ptr<teacher>>& teachers, vect
     cout << "2. Display All Teachers\n";
     cout << "3. Add a Student to this Teacher\n";
     cout << "4. Assign Homework to Students\n";
+    cout << "5. Manage Assignments for this Teacher\n";
     cout << "0. Back to Main Menu\n";
     cout << "Enter your choice: ";
     cin >> choice;
@@ -109,6 +130,7 @@ void teacher::manageTeacherMenu(vector<std::shared_ptr<teacher>>& teachers, vect
         t->input();
         people.push_back(t);
         teachers.push_back(t);
+        teacher::allTeachers.push_back(t);
         cout << "\nTeacher created successfully!\n";
         break;
     }
@@ -186,11 +208,43 @@ void teacher::manageTeacherMenu(vector<std::shared_ptr<teacher>>& teachers, vect
             cin.ignore();
             if (assignmentIndex > 0 && assignmentIndex <= assignments.size()) {
                 this->AssignHomework(assignments[assignmentIndex - 1]);
+                this->addAssignment(assignments[assignmentIndex - 1]);
                 cout << "\nAssignment assigned to the teacher successfully!\n";
             }
             else {
                 cout << "Invalid Assignment number!\n";
             }
+        }
+        break;
+    }
+    case 5: {
+        if (this->Assignments.empty()) {
+            cout << "No assignments created yet for this teacher, please create one.\n";
+            auto a = std::make_shared<assignment>();
+            a->input();
+            this->addAssignment(a);
+            assignments.push_back(a);
+            cout << "\nAssignment created and assigned successfully!\n";
+        }
+        else {
+            cout << "Available Assignments for this teacher:\n";
+            for (int i = 0; i < this->Assignments.size(); ++i) {
+                cout << i + 1 << ". " << this->Assignments[i]->getTitle() << "\n";
+            }
+
+            cout << "Enter the number of the assignment to manage (or 0 to go back): ";
+            int assignmentIndex;
+            cin >> assignmentIndex;
+            cin.ignore();
+
+            if (assignmentIndex > 0 && assignmentIndex <= this->Assignments.size()) {
+                // Change here as well.
+                this->Assignments[assignmentIndex - 1]->manageAssignmentMenu();
+            }
+            else if (assignmentIndex != 0) {
+                cout << "Invalid assignment number!\n";
+            }
+
         }
         break;
     }

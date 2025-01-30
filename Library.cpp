@@ -168,6 +168,14 @@ void Library::borrowBook(student* student, const std::string& bookTitle) {
         std::cout << "Invalid student pointer.\n";
         return;
     }
+
+    // Check if the student is an internal student (associated with the school)
+    if (student->getAssociatedSchool() == nullptr) {
+        std::cout << "External students are not allowed to borrow from the library.\n";
+        return;
+    }
+
+
     auto bookIt = std::find_if(Books.begin(), Books.end(), [&bookTitle](std::shared_ptr<book> b) {
         return b->gettitle() == bookTitle;
         });
@@ -324,10 +332,15 @@ void Library::manageLibraryMenu(std::vector<std::unique_ptr<Library>>& library, 
             cin >> studentIndex;
             cin.ignore();
             if (studentIndex > 0 && studentIndex <= students.size()) {
-                string bookName;
-                cout << "Enter the name of the book to borrow: ";
-                getline(cin, bookName);
-                this->borrowBook(students[studentIndex - 1].get(), bookName);
+                if (students[studentIndex - 1]->getAssociatedSchool() == nullptr) {
+                    cout << "External students are not allowed to borrow from this library.\n";
+                }
+                else {
+                    string bookName;
+                    cout << "Enter the name of the book to borrow: ";
+                    getline(cin, bookName);
+                    this->borrowBook(students[studentIndex - 1].get(), bookName);
+                }
             }
             else {
                 cout << "Invalid student number!\n";
