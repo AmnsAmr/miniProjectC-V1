@@ -29,7 +29,7 @@ class school : public std::enable_shared_from_this<school> {
 public:
     school(string n = "", principal p = principal(), Library c = Library());
     school(string n, principal p);
-
+    bool gethasLibrary();
     string getname();
     principal getpricipal();
     Library& getlibrary();

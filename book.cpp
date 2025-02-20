@@ -4,7 +4,7 @@
 #include "School.h"
 #include <iostream>
 int book::Book_ID = 1;
-book::book() :Title(""), Author(""), Num_page(0), Genre(""), Rating(0.0f), Borrow_count(0) { Book_id = Book_ID++; };
+book::book() :Title(""), Author(""), Num_page(0), Genre(""), Rating(0.0f), Borrow_count(0) { };
 
 book::book(string title, string author, int pages, string genre)
     : Title(title), Author(author), Num_page(pages), Genre(genre), Rating(0.0f), Borrow_count(0) {
@@ -16,7 +16,40 @@ string& book::getauthor() { return Author; }
 int book::getpages() { return Num_page; }
 string book::getgenre() { return Genre; }
 
+void book::settitle(string newTitle) {
+    Title = newTitle;
+}
 
+// Setter for author
+void book::setauthor(string newAuthor) {
+    Author = newAuthor;
+}
+
+// Display all individual ratings
+void book::displayAllRatings() {
+    if (Ratings.empty()) {
+        cout << "No ratings available.\n";
+    }
+    else {
+        cout << "All Ratings:\n";
+        for (float r : Ratings) {
+            cout << "- " << r << "\n";
+        }
+    }
+}
+
+// Display borrow history (students)
+void book::displayBorrowHistory() {
+    if (Borrow_history.empty()) {
+        cout << "No borrow history.\n";
+    }
+    else {
+        cout << "Borrow History (" << Borrow_count << " entries):\n";
+        for ( auto& student : Borrow_history) {
+            student.getname();
+        }
+    }
+}
 
 int& book::getborrow_count() { return Borrow_count; }
 vector<student>& book::getBorrowHistory() { return Borrow_history; }
@@ -39,67 +72,63 @@ void book::affichage() {
         << "Average Rating: " << (Ratings.empty() ? 0.0 : Rating) << "\n"
         << "Times Borrowed: " << Borrow_count << "\n";
 }
+void book::input(Library& library) {
+    std::vector<std::string> validGenres = {
+            "Textbooks",
+            "Dictionaries",
+            "Study Guides",
+            "Science",
+            "History",
+            "Mathematics",
+            "Philosophy",
+            "Psychology",
+            "Business/Economics",
+            "Language Learning"
+    };
 
-void book::input() {
+    std::cout << "Enter Title: ";
+    std::getline(std::cin, Title);
 
-    bool validTitle = false;
-    while (!validTitle) {
-        std::cout << "Enter Title: ";
-        std::getline(std::cin, Title);
-        if (Title.empty()) {
-            std::cout << "Title cannot be empty. Please enter a title.\n";
-        }
-        else {
-            validTitle = true;
-        }
+    std::cout << "Enter Author: ";
+    std::getline(std::cin, Author);
+
+    std::cout << "Enter Number of Pages: ";
+    while (!(std::cin >> Num_page)) {
+        std::cout << "Invalid input. Please enter a valid integer for the number of pages: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+    std::cin.ignore(); // Clear the input buffer
+
+    // Genre selection using a number
+    std::cout << "Select a genre by number:\n";
+    for (size_t i = 0; i < validGenres.size(); ++i) {
+        std::cout << i + 1 << ". " << validGenres[i] << "\n";
     }
 
-    bool validAuthor = false;
-    while (!validAuthor) {
-        std::cout << "Enter Author: ";
-        std::getline(std::cin, Author);
-        if (Author.empty()) {
-            std::cout << "Author cannot be empty. Please enter an author.\n";
-        }
-        else {
-            validAuthor = true;
-        }
-    }
-
-
-    bool validPages = false;
-    while (!validPages) {
-        try {
-            std::cout << "Enter Number of Pages: ";
-            std::cin >> Num_page;
-            if (std::cin.fail()) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                throw std::runtime_error("Invalid input. Please enter a valid integer for the number of pages.");
+    int genreChoice;
+    while (true) {
+        std::cout << "Enter the number of your chosen genre: ";
+        if (std::cin >> genreChoice) {
+            if (genreChoice >= 1 && genreChoice <= validGenres.size()) {
+                Genre = validGenres[genreChoice - 1];
+                break; // Exit the loop if a valid choice is made
             }
-            validPages = true;
-        }
-        catch (const std::runtime_error& e) {
-            std::cerr << "Error: " << e.what() << "\n";
-        }
-    }
-
-
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    bool validGenre = false;
-    while (!validGenre) {
-        std::cout << "Enter Genre: ";
-        std::getline(std::cin, Genre);
-        if (Genre.empty()) {
-            std::cout << "Genre cannot be empty. Please enter a genre.\n";
+            else {
+                std::cout << "Invalid choice. Please enter a number between 1 and " << validGenres.size() << ".\n";
+            }
         }
         else {
-            validGenre = true;
+            std::cout << "Invalid input. Please enter a number.\n";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
-    Book_id = Book_ID++;
+    shared_ptr<book> newBook = std::make_shared<book>(Title, Author, Num_page, Genre);
+
+    library.setbooks(newBook);
 }
+
 
 void book::averagerating() {
     if (Ratings.empty()) {
@@ -127,77 +156,50 @@ ostream& operator<<(ostream& os, book& b) {
 
 void book::manageBookMenu(std::vector<std::shared_ptr<book>>& books, Library& library, std::vector<std::shared_ptr<school>>& schools) {
     int choice;
-    cout << "\nBook Menu:\n";
-    cout << "1. Create a Book\n";
-    cout << "2. Add a Book to this Library\n";
-    cout << "3. Display All Books\n";
-    cout << "0. Back to Library Menu\n";
-    cout << "Enter your choice: ";
-    cin >> choice;
-    cin.ignore();
+    while (true) {
+        cout << "\nManage Books Menu:\n"
+            << "1. Modify Book Title\n"
+            << "2. Modify Book Author\n"
+            << "3. View Average Rating\n"
+            << "4. View All Ratings\n"
+            << "5. View Borrow History\n"
+            << "6. affichage\n"
+            << "0. Return to Previous Menu\n"
+            << "Enter your choice: ";
+        cin >> choice;
+        cin.ignore(); // Clear input buffer
 
-    switch (choice) {
-    case 1: {
-        auto b = std::make_shared<book>();
-        b->input();
-        books.push_back(b);
-        cout << "\nBook created successfully!\n";
-        break;
-    }
-    case 2: {
-        if (books.empty()) {
-            cout << "No books available to add to the library.\n";
+        switch (choice) {
+        case 1: {
+            string newTitle;
+            cout << "Enter new title: ";
+            getline(cin, newTitle);
+            this->settitle(newTitle);
+            break;
         }
-        else {
-            cout << "Available Books:\n";
-            for (size_t i = 0; i < books.size(); ++i) {
-                cout << i + 1 << ". " << books[i]->gettitle() << "\n";
-            }
-            cout << "Enter the number of the book to add: ";
-            int bookIndex;
-            cin >> bookIndex;
-            cin.ignore();
-            if (bookIndex > 0 && bookIndex <= books.size()) {
-                auto bookToAdd = books[bookIndex - 1];
-                bool bookExists = false;
-                for (const auto& book : library.getBooks()) {
-                    if (book->gettitle() == bookToAdd->gettitle()) {
-                        bookExists = true;
-                        break;
-                    }
-                }
-                if (!bookExists) {
-                    library.addBook(books[bookIndex - 1]->gettitle(),
-                        books[bookIndex - 1]->getauthor(),
-                        books[bookIndex - 1]->getpages(),
-                        books[bookIndex - 1]->getgenre());
-                    cout << "\nBook added successfully to the library!\n";
-                }
-                else {
-                    cout << "This book already exists in the library.\n";
-                }
-            }
-            else {
-                cout << "Invalid book number!\n";
-            }
+        case 2: {
+            string newAuthor;
+            cout << "Enter new author: ";
+            getline(cin, newAuthor);
+            this->setauthor(newAuthor);
+            break;
         }
-        break;
-    }
-    case 3: {
-        if (books.empty()) {
-            cout << "No Book objects created yet!\n";
+        case 3:
+            cout << "Average Rating: " << this->getrating() << "\n";
+            break;
+        case 4:
+            this->displayAllRatings();
+            break;
+        case 5:
+            this->displayBorrowHistory();
+            break;
+        case 6:
+            this->affichage();
+            break;
+        case 0:
+            return;
+        default:
+            cout << "Invalid choice.\n";
         }
-        else {
-            cout << "\nAll Books:\n";
-            for (size_t i = 0; i < books.size(); ++i) {
-                cout << "Book " << i + 1 << ":\n";
-                books[i]->affichage();
-                cout << "-----------------\n";
-            }
-        }
-        break;
-    }
-    case 0: return;
-    default: cout << "Invalid choice!\n";
     }
 }

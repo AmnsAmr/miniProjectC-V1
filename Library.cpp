@@ -7,7 +7,16 @@
 Library::Library() : Total_capacity(5), Current_capacity(0) {}
 Library::Library(int total_capacity) : Total_capacity(total_capacity), Current_capacity(0) {}
 
-void Library::setbooks(shared_ptr<book> b) { Books.push_back(b); }
+void Library::setbooks(shared_ptr<book> b) {
+    if (Current_capacity < Total_capacity) {
+        Books.push_back(b);
+        Current_capacity++;
+        std::cout << "Book added successfully.\n";
+    }
+    else {
+        std::cout << "Library is at full capacity! Cannot add more books.\n";
+    }
+}
 vector<std::shared_ptr<book>> Library::getBooks() const { return Books; }
 
 void Library::addBook(const std::string& title, const std::string& author, int pages, const std::string& genre) {
@@ -193,77 +202,16 @@ void Library::borrowBook(student* student, const std::string& bookTitle) {
 }
 
 void Library::input() {
-    std::string title, author, genre;
-    int pages;
-
-    std::cout << "Enter Book Title: ";
-    std::getline(std::cin, title);
-
-    std::cout << "Enter Book Author: ";
-    std::getline(std::cin, author);
-
-    bool validInput = false;
-    while (!validInput) {
-        try {
-            std::cout << "Enter Number of Pages: ";
-            std::cin >> pages;
-            if (std::cin.fail()) {
-                std::cin.clear();  // Clear error flags
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //Clear input buffer
-                throw std::runtime_error("Invalid input. Please enter a valid integer for the number of pages.");
-            }
-
-            validInput = true;
-        }
-        catch (const std::runtime_error& e) {
-            std::cerr << "Error: " << e.what() << "\n";
-        }
+    if (Current_capacity < Total_capacity) {
+        std::shared_ptr<book> newBook = std::make_shared<book>();
+        newBook->input(*this);
+        
+        Current_capacity++;
+        std::cout << "Book added successfully.\n";
     }
-
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer
-
-    // Define the list of valid genres
-    std::vector<std::string> validGenres = {
-        "Textbooks",
-        "Dictionaries",
-        "Study Guides",
-        "Science",
-        "History",
-        "Mathematics",
-        "Philosophy",
-        "Psychology",
-        "Business/Economics",
-        "Language Learning"
-    };
-
-    // Prompt user to select a genre from list.
-    bool validGenre = false;
-    while (!validGenre) {
-        std::cout << "Available Genres:\n";
-        for (size_t i = 0; i < validGenres.size(); ++i) {
-            std::cout << i + 1 << ". " << validGenres[i] << "\n";
-        }
-        int genreChoice;
-        std::cout << "Select Genre by number: ";
-        std::cin >> genreChoice;
-
-        // Validate the user input and that it is a correct integer
-        if (std::cin.fail() || genreChoice < 1 || genreChoice > validGenres.size()) {
-            std::cout << "Invalid input. Please enter a valid number between 1 and " << validGenres.size() << ".\n";
-            std::cin.clear();  // Clear error flags
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        }
-        else {
-            genre = validGenres[genreChoice - 1];
-            validGenre = true;
-        }
+    else {
+        std::cout << "Library is at full capacity! Cannot add more books.\n";
     }
-    // Create a shared_ptr for the new book before adding it
-    std::shared_ptr<book> newBook = std::make_shared<book>(title, author, pages, genre);
-
-    // Add the new book to the global books vector
-    books.push_back(newBook);
-    addBook(title, author, pages, genre);
 }
 void Library::manageLibraryMenu(std::vector<std::unique_ptr<Library>>& library, std::vector<std::shared_ptr<student>>& students, std::vector<std::shared_ptr<book>>& books, std::vector<std::shared_ptr<school>>& schools) {
     int choice;

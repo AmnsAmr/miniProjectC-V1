@@ -35,9 +35,13 @@ public:
 
     string gettitle();
     void setratings(float a);
+    void settitle(string newTitle);
+    void setauthor(string newAuthor);
+    void displayAllRatings();
+    void displayBorrowHistory();
 
     void affichage();
-    void input();
+    void input(Library& library);
     void averagerating();
     void manageBookMenu(std::vector<std::shared_ptr<book>>& books, Library& library, std::vector<std::shared_ptr<school>>& schools);
 

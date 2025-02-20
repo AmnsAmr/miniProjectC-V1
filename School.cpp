@@ -7,6 +7,7 @@ school::school(string n, principal p) : Name(n), Principal(p) {}
 string school::getname() { return Name; }
 principal school::getpricipal() { return Principal; }
 Library& school::getlibrary() { return library; }
+bool school::gethasLibrary() { return hasLibrary; }
 vector<std::shared_ptr<student>>& school::getStudents() { return Students; }
 vector<std::shared_ptr<Group>>& school::getGroups() { return Groups; }
 std::vector<std::shared_ptr<teacher>>& school::getTeachers() {return Teachers;}
@@ -73,36 +74,41 @@ void school::manageLibrary(std::vector<std::unique_ptr<Library>>& library, std::
     this->library.manageLibraryMenu(library, students, books, schools);
 }
 void school::input() {
-    bool validName = false;
-    while (!validName) {
-        std::cout << "Enter School Name: ";
-        std::getline(std::cin, Name);
-        if (Name.empty()) {
-            std::cout << "School name cannot be empty. Please enter a school name.\n";
-        }
-        else {
-            validName = true;
-        }
+    cout << "Enter School Name: ";
+    getline(cin, Name);
+
+    cout << "Available Principals:\n";
+    for (size_t i = 0; i < principals.size(); ++i) {
+        cout << i+1 << ": " << principals[i]->getName() << endl;
     }
 
-    std::cout << "Enter Principal Details:\n";
-    Principal.input();
+    cout << "Select a principal : ";
+    int index;
+    cin >> index;
+    cin.ignore();
 
+    if (index < 0 || index-1 >= static_cast<int>(principals.size())) {
+        cerr << "Invalid index. Defaulting to index 1.\n";
+        index = 1;
+    }
+
+    Principal = *principals[index-1]; // Copy the selected principal
+    principals.erase(principals.begin()+ index - 1);
 
     char addLibrary;
-    std::cout << "Do you want to add a library? (y/n): ";
-    std::cin >> addLibrary;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
+    cout << "Do you want to add a library? (y/n): ";
+    cin >> addLibrary;
+    cin.ignore();
 
     if (addLibrary == 'y' || addLibrary == 'Y') {
-        std::unique_ptr<Library> lib = std::make_unique<Library>();
-        lib->input();
-        library = *lib;
-        libraries.push_back(std::move(lib));
+        Library lib;
+        lib.input();
+        library = lib;
         hasLibrary = true;
     }
-    //school.pushback
+    auto schoolPtr = std::make_shared<school>(*this);
+    schools.push_back(schoolPtr);
+
 }
 
 void school::manageSchoolMenu(std::vector<std::shared_ptr<school>>& schools, std::vector<std::shared_ptr<student>>& students, std::vector<std::shared_ptr<book>>& books, std::vector<std::unique_ptr<Library>>& library) {
@@ -125,7 +131,6 @@ void school::manageSchoolMenu(std::vector<std::shared_ptr<school>>& schools, std
     case 1: {
         auto s = std::make_shared<school>();
         s->input();
-        schools.push_back(s);
         cout << "\nSchool created successfully!\n";
         break;
     }

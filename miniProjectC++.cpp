@@ -117,189 +117,76 @@ int main() {
             }
             break;
         }
-       /*case 4: {
-            if (books.empty()) {
-                auto b = std::make_shared<book>();
-                b->input();
-                books.push_back(b);
-                b->manageBookMenu(books, libraries, schools);
+        case 4: {
+            cout << "1. Create a New School\n";
+            cout << "2. Manage an Existing School\n";
+            cout << "Enter your choice: ";
+            int subChoice;
+            cin >> subChoice;
+            cin.ignore();
 
-            }
-            else {
-                cout << "Available books:\n";
-                for (size_t i = 0; i < books.size(); i++) {
-                    cout << i + 1 << ". " << books[i]->gettitle() << "\n";
+            if (subChoice == 1) {
+                if (principals.empty()) {
+                    cout << "No principals available. Create a principal first!\n";
+                    break;
                 }
-                cout << "Enter the number of the book you want to manage: ";
-                int bookIndex;
-                cin >> bookIndex;
+               auto s = std::make_shared<school>();
+                s->input();
+                cout << "School created successfully!\n";
+            }
+            else if (subChoice == 2) {
+                if (schools.empty()) {
+                    cout << "No schools to manage.\n";
+                    break;
+                }
+                cout << "Available Schools:\n";
+                for (size_t i = 0; i < schools.size(); ++i) {
+                    cout << i + 1 << ". " << schools[i]->getname() << endl;
+                }
+                cout << "Enter school number: ";
+                int schoolIndex;
+                cin >> schoolIndex;
                 cin.ignore();
-                if (bookIndex > 0 && bookIndex <= books.size()) {
-                    books[bookIndex - 1]->manageBookMenu(books, libraries, schools);
+                if (schoolIndex < 1 || schoolIndex > schools.size()) {
+                    cout << "Invalid index.\n";
+                    break;
                 }
-                else {
-                    auto b = std::make_shared<book>();
-                    b->input();
-                    books.push_back(b);
-                    b->manageBookMenu(books, libraries, schools);
-                }
-            }
-            break;
-        }*/ 
-        /**/case 5: {
-            if (libraries.empty()) {
-                cout << "No Library objects created yet!\n";
+                schools[schoolIndex - 1]->manageSchoolMenu(schools,students,books,libraries);
+                
             }
             else {
-                cout << "Available libraries:\n";
-                for (size_t i = 0; i < libraries.size(); i++) {
-                    // Assuming each school has a library, accessing through the school
-                    if (!schools.empty())
-                    {
-
-                        cout << i + 1 << ". Library for " << schools[i]->getname() << "\n";
-
-
-                    }
-                }
-                if (!schools.empty())
-                {
-                    cout << "Enter the number of the library you want to manage: ";
-                    int libraryIndex;
-                    cin >> libraryIndex;
-                    cin.ignore();
-                    if (libraryIndex > 0 && libraryIndex <= libraries.size()) {
-                        schools[libraryIndex - 1]->getlibrary().manageLibraryMenu(libraries, students, books, schools);
-                    }
-                    else {
-                        cout << "Invalid library number!\n";
-                    }
-                }
-                else {
-                    cout << "No schools created yet, a library can only be managed through school!\n";
-                }
-
+                cout << "Invalid choice.\n";
             }
-
             break;
         }
-        /*case 6: {
-            if (groups.empty()) {
-                auto g = std::make_shared<Group>();
-                g->input();
-                groups.push_back(g);
-                g->manageGroupMenu(groups, students);
-
-            }
-            else {
-                cout << "Available groups:\n";
-                for (size_t i = 0; i < groups.size(); i++) {
-                    cout << i + 1 << ". " << groups[i]->getgroup() << "\n";
-                }
-                cout << "Enter the number of the group you want to manage: ";
-                int groupIndex;
-                cin >> groupIndex;
-                cin.ignore();
-                if (groupIndex > 0 && groupIndex <= groups.size()) {
-                    groups[groupIndex - 1]->manageGroupMenu(groups, students);
-                }
-                else {
-                    auto g = std::make_shared<Group>();
-                    g->input();
-                    groups.push_back(g);
-                    g->manageGroupMenu(groups, students);
-                }
-            }
-            break;
-        }*/
-        /*case 7: {
-            if (assignments.empty()) {
-                auto a = std::make_shared<assignment>();
-                a->input();
-                assignments.push_back(a);
-                a->manageAssignmentMenu(assignments);
-
-            }
-            else {
-                cout << "Available assignments:\n";
-                for (size_t i = 0; i < assignments.size(); i++) {
-                    cout << i + 1 << ". " << assignments[i]->getTitle() << "\n";
-                }
-                cout << "Enter the number of the assignment you want to manage: ";
-                int assignmentIndex;
-                cin >> assignmentIndex;
-                cin.ignore();
-                if (assignmentIndex > 0 && assignmentIndex <= assignments.size()) {
-                    assignments[assignmentIndex - 1]->manageAssignmentMenu(assignments);
-                }
-                else {
-                    auto a = std::make_shared<assignment>();
-                    a->input();
-                    assignments.push_back(a);
-                    a->manageAssignmentMenu(assignments);
-                }
-            }
-            break;
-        }*/
-        case 8: {
+        case 5: {
             if (schools.empty()) {
-                auto s = std::make_shared<school>();
-                s->input();
-                schools.push_back(s);
-                s->manageSchoolMenu(schools, students, books, libraries);
-
+                cout << "There are no schools yet. Please create a school first.\n";
             }
             else {
                 cout << "Available schools:\n";
                 for (size_t i = 0; i < schools.size(); i++) {
                     cout << i + 1 << ". " << schools[i]->getname() << "\n";
                 }
-                cout << "Enter the number of the school you want to manage: ";
+                cout << "Enter the number of the school you want to add a library/book to: ";
                 int schoolIndex;
                 cin >> schoolIndex;
                 cin.ignore();
+
                 if (schoolIndex > 0 && schoolIndex <= schools.size()) {
-                    schools[schoolIndex - 1]->manageSchoolMenu(schools, students, books, libraries);
+                    //Check if the library already exist
+                    if (schools[schoolIndex - 1]->gethasLibrary()) {
+                        cout << "create a book\n";
+                        auto s = std::make_shared<book>();
+                        schools[schoolIndex - 1]->getlibrary().input();
+                    }
                 }
                 else {
-                    auto s = std::make_shared<school>();
-                    s->input();
-                    schools.push_back(s);
-                    s->manageSchoolMenu(schools, students, books, libraries);
+                    cout << "Invalid school number. Please try again.\n";
                 }
             }
             break;
         }
-        /*case 9: {
-            if (prosecutions.empty()) {
-                auto p = std::make_shared<prosecution>();
-                p->input();
-                prosecutions.push_back(p);
-                p->manageProsecutionMenu(prosecutions);
-
-            }
-            else {
-                cout << "Available prosecutions:\n";
-                for (size_t i = 0; i < prosecutions.size(); i++) {
-                    cout << i + 1 << ". Prosecution " << i + 1 << "\n";
-                }
-                cout << "Enter the number of the prosecution you want to manage: ";
-                int prosecutionIndex;
-                cin >> prosecutionIndex;
-                cin.ignore();
-                if (prosecutionIndex > 0 && prosecutionIndex <= prosecutions.size()) {
-                    prosecutions[prosecutionIndex - 1]->manageProsecutionMenu(prosecutions);
-                }
-                else {
-                    auto p = std::make_shared<prosecution>();
-                    p->input();
-                    prosecutions.push_back(p);
-                    p->manageProsecutionMenu(prosecutions);
-                }
-            }
-            break;
-        }*/
-            //case 11: manageMinistryMenu(ministry); break;
         case 0: {
             cout << "Exiting the program...\n";
             return 0;
@@ -315,13 +202,8 @@ void displayMainMenu() {
     cout << "1. Manage Students\n";
     cout << "2. Manage Teachers\n";
     cout << "3. Manage Principals\n";
-    //cout << "4. Manage Books \n";
-    //cout << "5. Manage Library\n";
-    //cout << "6. Manage Groups\n";
-    //cout << "7. Manage Assignments\n";
-    cout << "8. Manage Schools\n";
-    //cout << "9. Manage Prosecutions\n";
-    //cout << "11. Manage Ministry of Education\n";
+    cout << "4. Manage Schools\n";
+    cout << "5. create a book\n";
     cout << "0. Exit\n";
     cout << "Enter your choice: ";
 }
