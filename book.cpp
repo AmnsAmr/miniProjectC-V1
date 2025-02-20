@@ -46,7 +46,7 @@ void book::displayBorrowHistory() {
     else {
         cout << "Borrow History (" << Borrow_count << " entries):\n";
         for ( auto& student : Borrow_history) {
-            student.getname();
+            student.getName();
         }
     }
 }
@@ -156,7 +156,7 @@ ostream& operator<<(ostream& os, book& b) {
 
 void book::manageBookMenu(std::vector<std::shared_ptr<book>>& books, Library& library, std::vector<std::shared_ptr<school>>& schools) {
     int choice;
-    while (true) {
+    do{
         cout << "\nManage Books Menu:\n"
             << "1. Modify Book Title\n"
             << "2. Modify Book Author\n"
@@ -201,5 +201,5 @@ void book::manageBookMenu(std::vector<std::shared_ptr<book>>& books, Library& li
         default:
             cout << "Invalid choice.\n";
         }
-    }
+    } while (choice != 0);
 }

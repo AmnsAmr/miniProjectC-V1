@@ -18,23 +18,21 @@ class teacher : public person, public std::enable_shared_from_this<teacher> {
     static std::vector<std::shared_ptr<teacher>> allTeachers;
 
 public:
-    // Constructor
+
 
     teacher(string name = "", int age = 0, string address = "", float sal = 0.0f, string sub = "", int exp = 0, bool fullTime = false);
 
-    // Display teacher details
-    void affichage() override; // Override base class function
+    void affichage() override;
 
-    // Input teacher details
-    void input() override; // Override base class function
+    void input() override;
 
-    // Add student
-    void addStudent(std::shared_ptr<student> stud); // Shared pointer student
+    void addStudent(std::shared_ptr<student> stud);
 
-    // Assign homework to all students
-    void AssignHomework(std::shared_ptr<assignment> homework); // Shared pointer assignment
-
-    // Friend function for ostream
+    void AssignHomework(std::shared_ptr<assignment> homework);
+    vector<std::shared_ptr<assignment>> getHomework();
+    
+    void gradehomework();
+ 
     friend ostream& operator<<(ostream& COUT, teacher& teacher);
 
     void addAssignment(std::shared_ptr<assignment> ass);
@@ -43,4 +41,4 @@ public:
     friend class assignment;
 };
 
-#endif // TEACHER_H
+#endif

@@ -38,6 +38,7 @@ void principal::input() {
 
 void principal::managePrincipalMenu(std::vector<std::shared_ptr<principal>>& principals, std::vector<std::shared_ptr<person>>& people) {
     int choice;
+    do{
     std::cout << "\nPrincipal Menu:\n";
     std::cout << "1. Create a Principal\n";
     std::cout << "2. Display All Principals\n";
@@ -72,4 +73,5 @@ void principal::managePrincipalMenu(std::vector<std::shared_ptr<principal>>& pri
     case 0: return;
     default: std::cout << "Invalid choice!\n";
     }
+    } while (choice != 0);
 }

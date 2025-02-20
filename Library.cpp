@@ -183,6 +183,10 @@ void Library::borrowBook(student* student, const std::string& bookTitle) {
         std::cout << "External students are not allowed to borrow from the library.\n";
         return;
     }
+    if (student->getgpa() < 2.5) {
+        cout << "GPA too low to borrow books.\n";
+        return;
+    }
 
 
     auto bookIt = std::find_if(Books.begin(), Books.end(), [&bookTitle](std::shared_ptr<book> b) {
@@ -215,166 +219,168 @@ void Library::input() {
 }
 void Library::manageLibraryMenu(std::vector<std::unique_ptr<Library>>& library, std::vector<std::shared_ptr<student>>& students, std::vector<std::shared_ptr<book>>& books, std::vector<std::shared_ptr<school>>& schools) {
     int choice;
-    cout << "\nLibrary Menu:\n";
-    cout << "1. Remove a Book from the Library\n";
-    cout << "2. Search for a Book in the Library\n";
-    cout << "3. Display All Books in the Library\n";
-    cout << "4. Borrow a Book from the Library\n";
-    cout << "5. Add a Rating to a Book\n";
-    cout << "6. Display the Most Borrowed Book\n";
-    cout << "7. Display the Highest Rated Books\n";
-    cout << "8. Manage a Specific Book\n";
-    cout << "9. Display all students that borrow a book\n";
-    cout << "0. Back to Main Menu\n";
-    cout << "Enter your choice: ";
-    cin >> choice;
-    cin.ignore();
-    switch (choice) {
-    case 1: {
-        if (this->Books.empty()) {
-            cout << "The library is empty\n";
-        }
-        else {
-            string bookName;
-            cout << "Enter the name of the book to remove: ";
-            getline(cin, bookName);
-            this->removeBook(bookName);
-        }
-        break;
-    }
-    case 2: {
-        if (this->Books.empty()) {
-            cout << "The library is empty\n";
-        }
-        else {
-            string keyword;
-            cout << "Enter a keyword to search for: ";
-            getline(cin, keyword);
-            this->searchBook(keyword);
-        }
-        break;
-    }
-    case 3: {
-        if (this->Books.empty()) {
-            cout << "The library is empty.\n";
-        }
-        else {
-            this->affichage();
-        }
-        break;
-    }
-    case 4: {
-        if (students.empty()) {
-            cout << "No students available to borrow a book.\n";
-        }
-        else if (this->Books.empty()) {
-            cout << "The library is empty.\n";
-        }
-        else {
-            cout << "Available Students:\n";
-            for (size_t i = 0; i < students.size(); ++i) {
-                cout << i + 1 << ". " << students[i]->getName() << "\n";
+    do {
+        cout << "\nLibrary Menu:\n";
+        cout << "1. Remove a Book from the Library\n";
+        cout << "2. Search for a Book in the Library\n";
+        cout << "3. Display All Books in the Library\n";
+        cout << "4. Borrow a Book from the Library\n";
+        cout << "5. Add a Rating to a Book\n";
+        cout << "6. Display the Most Borrowed Book\n";
+        cout << "7. Display the Highest Rated Books\n";
+        cout << "8. Manage a Specific Book\n";
+        cout << "9. Display all students that borrow a book\n";
+        cout << "0. Back to Main Menu\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cin.ignore();
+        switch (choice) {
+        case 1: {
+            if (this->Books.empty()) {
+                cout << "The library is empty\n";
             }
-            cout << "Enter the number of the student: ";
-            int studentIndex;
-            cin >> studentIndex;
-            cin.ignore();
-            if (studentIndex > 0 && studentIndex <= students.size()) {
-                if (students[studentIndex - 1]->getAssociatedSchool() == nullptr) {
-                    cout << "External students are not allowed to borrow from this library.\n";
+            else {
+                string bookName;
+                cout << "Enter the name of the book to remove: ";
+                getline(cin, bookName);
+                this->removeBook(bookName);
+            }
+            break;
+        }
+        case 2: {
+            if (this->Books.empty()) {
+                cout << "The library is empty\n";
+            }
+            else {
+                string keyword;
+                cout << "Enter a keyword to search for: ";
+                getline(cin, keyword);
+                this->searchBook(keyword);
+            }
+            break;
+        }
+        case 3: {
+            if (this->Books.empty()) {
+                cout << "The library is empty.\n";
+            }
+            else {
+                this->affichage();
+            }
+            break;
+        }
+        case 4: {
+            if (students.empty()) {
+                cout << "No students available to borrow a book.\n";
+            }
+            else if (this->Books.empty()) {
+                cout << "The library is empty.\n";
+            }
+            else {
+                cout << "Available Students:\n";
+                for (size_t i = 0; i < students.size(); ++i) {
+                    cout << i + 1 << ". " << students[i]->getName() << "\n";
+                }
+                cout << "Enter the number of the student: ";
+                int studentIndex;
+                cin >> studentIndex;
+                cin.ignore();
+                if (studentIndex > 0 && studentIndex <= students.size()) {
+                    if (students[studentIndex - 1]->getAssociatedSchool() == nullptr) {
+                        cout << "External students are not allowed to borrow from this library.\n";
+                    }
+                    else {
+                        string bookName;
+                        cout << "Enter the name of the book to borrow: ";
+                        getline(cin, bookName);
+                        this->borrowBook(students[studentIndex - 1].get(), bookName);
+                    }
                 }
                 else {
-                    string bookName;
-                    cout << "Enter the name of the book to borrow: ";
-                    getline(cin, bookName);
-                    this->borrowBook(students[studentIndex - 1].get(), bookName);
+                    cout << "Invalid student number!\n";
                 }
             }
+            break;
+        }
+        case 5: {
+            if (this->Books.empty()) {
+                cout << "The library is empty\n";
+            }
+            else if (books.empty()) {
+                cout << "No books available to rate.\n";
+            }
             else {
-                cout << "Invalid student number!\n";
-            }
-        }
-        break;
-    }
-    case 5: {
-        if (this->Books.empty()) {
-            cout << "The library is empty\n";
-        }
-        else if (books.empty()) {
-            cout << "No books available to rate.\n";
-        }
-        else {
-            cout << "Available Books:\n";
-            for (size_t i = 0; i < books.size(); ++i) {
-                cout << i + 1 << ". " << books[i]->gettitle() << "\n";
-            }
-            cout << "Enter the number of the book to rate: ";
-            int bookIndex;
-            cin >> bookIndex;
-            cin.ignore();
-            if (bookIndex > 0 && bookIndex <= books.size()) {
-                float rating;
-                cout << "Enter a rating (1-5): ";
-                cin >> rating;
+                cout << "Available Books:\n";
+                for (size_t i = 0; i < books.size(); ++i) {
+                    cout << i + 1 << ". " << books[i]->gettitle() << "\n";
+                }
+                cout << "Enter the number of the book to rate: ";
+                int bookIndex;
+                cin >> bookIndex;
                 cin.ignore();
-                this->addRating(books[bookIndex - 1]->gettitle(), rating);
+                if (bookIndex > 0 && bookIndex <= books.size()) {
+                    float rating;
+                    cout << "Enter a rating (1-5): ";
+                    cin >> rating;
+                    cin.ignore();
+                    this->addRating(books[bookIndex - 1]->gettitle(), rating);
+                }
+                else {
+                    cout << "Invalid book number!\n";
+                }
+            }
+            break;
+        }
+        case 6: {
+            if (this->Books.empty()) {
+                cout << "The library is empty\n";
             }
             else {
-                cout << "Invalid book number!\n";
+                this->displayMostBorrowedBook();
             }
+            break;
         }
-        break;
-    }
-    case 6: {
-        if (this->Books.empty()) {
-            cout << "The library is empty\n";
-        }
-        else {
-            this->displayMostBorrowedBook();
-        }
-        break;
-    }
-    case 7: {
-        if (this->Books.empty()) {
-            cout << "The library is empty\n";
-        }
-        else {
-            int num;
-            cout << "Enter the number of top-rated books to display: ";
-            cin >> num;
-            cin.ignore();
-            this->displayHighestRatedBooks(num);
-        }
-        break;
-    }
-    case 8: {
-        if (this->Books.empty()) {
-            cout << "The library is empty. No books to manage.\n";
-        }
-        else {
-            cout << "Available Books:\n";
-            for (size_t i = 0; i < this->Books.size(); ++i) {
-                cout << i + 1 << ". " << this->Books[i]->gettitle() << "\n";
-            }
-            cout << "Enter the number of the book to manage: ";
-            int bookIndex;
-            cin >> bookIndex;
-            cin.ignore();
-            if (bookIndex > 0 && bookIndex <= this->Books.size()) {
-                book tempBook = *this->Books[bookIndex - 1];
-                tempBook.manageBookMenu(books, *this, schools);
+        case 7: {
+            if (this->Books.empty()) {
+                cout << "The library is empty\n";
             }
             else {
-                cout << "Invalid book number!\n";
+                int num;
+                cout << "Enter the number of top-rated books to display: ";
+                cin >> num;
+                cin.ignore();
+                this->displayHighestRatedBooks(num);
             }
+            break;
         }
-        break;
-    }
-    case 9: {
-        this->displayStudentsBorrowing();
-        break;
-    }
-    case 0: return;
-    default: cout << "Invalid choice!\n";
-    }
+        case 8: {
+            if (this->Books.empty()) {
+                cout << "The library is empty. No books to manage.\n";
+            }
+            else {
+                cout << "Available Books:\n";
+                for (size_t i = 0; i < this->Books.size(); ++i) {
+                    cout << i + 1 << ". " << this->Books[i]->gettitle() << "\n";
+                }
+                cout << "Enter the number of the book to manage: ";
+                int bookIndex;
+                cin >> bookIndex;
+                cin.ignore();
+                if (bookIndex > 0 && bookIndex <= this->Books.size()) {
+                    book tempBook = *this->Books[bookIndex - 1];
+                    tempBook.manageBookMenu(books, *this, schools);
+                }
+                else {
+                    cout << "Invalid book number!\n";
+                }
+            }
+            break;
+        }
+        case 9: {
+            this->displayStudentsBorrowing();
+            break;
+        }
+        case 0: return;
+        default: cout << "Invalid choice!\n";
+        }
+    }while (choice != 0);
 }

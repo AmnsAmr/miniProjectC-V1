@@ -18,15 +18,18 @@ class assignment {
 
 public:
     assignment(string title = "", string description = "");
-
+    assignment(const assignment& other);
     string getTitle();
     string getDescription();
     void markAsDone();
+    bool getifdone();
+    int getGrade();
 
+    void addNameToTitle(string a);
     void setGrade(int grade);
     void affichage();
     void manageAssignmentMenu();
-
+    std::string getLastWord();
     void input();
     friend class teacher;
 };

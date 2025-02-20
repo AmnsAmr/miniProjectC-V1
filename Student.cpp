@@ -12,11 +12,23 @@ student::student(string& name, int& age, string& address, int& grade, string& pa
     Student_id(Student_ID++){
 }
 
+void student::calculateGPA() {
+    float total = 0.0f;
+    int count = 0;
+    for (auto& assgn : Assignments) {
+        if (assgn->getifdone() && assgn->getGrade() >= 0) {
+            total += assgn->getGrade();
+            count++;
+        }
+    }
+    GPA += (count == 0) ? 0.0f : (total / count) * 0.25f;
+}
+
 vector<book>& student::getbooklist() { return Books_borrowed; }
 int student::getGrade() { return Grade; }
-string student::getname() { return Name; }
 int student::getStudentId() { return Student_id; }
 school* student::getAssociatedSchool() { return associatedSchool; }
+float student::getgpa() { return GPA; }
 
 void student::setGrade(int& grade) { Grade = grade; }
 void student::setStudentId(int id) { Student_id = id; }
@@ -79,6 +91,42 @@ void student::addrating(const std::string& bookTitle, float rating) {
         std::cout << "Book \"" << bookTitle << "\" not found in the list of borrowed books.\n";
     }
 }
+
+void student::solvehomework() {
+    cout << "Select an assignment to mark as done:\n";
+    for (size_t i = 0; i < Assignments.size(); ++i) {
+        cout << i + 1 << ". " << Assignments[i]->getTitle() << "\n";
+    }
+    cout << "Enter the assignment number: ";
+    int index;
+    cin >> index;
+    cin.ignore();
+    if (index > 0 && index <= Assignments.size()) {
+        Assignments[index - 1]->markAsDone();
+        cout << "Assignment marked as done.\n";
+    }
+    else {
+        cout << "Invalid assignment number.\n";
+    }
+}
+vector<std::shared_ptr<assignment>> student::returnHomwork() {
+    vector<std::shared_ptr<assignment>> doneAssignments;
+    for (auto it = Assignments.begin(); it != Assignments.end();) {
+        if ((*it)->getifdone()) {
+            // Append student's name to the title
+            (*it)->addNameToTitle(" [Submitted by: " + Name + "]");
+            doneAssignments.push_back(*it);
+            it = Assignments.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+    return doneAssignments;
+}
+
+
+
 void student::returnbook(Library& library, const std::string& bookTitle) {
     for (auto bookIt = Books_borrowed.begin(); bookIt != Books_borrowed.end(); ++bookIt) {
         if (bookIt->gettitle() == bookTitle) {
@@ -109,132 +157,145 @@ ostream& operator<<(ostream& COUT, student& student) {
 
 void student::manageStudentMenu(std::vector<std::shared_ptr<student>>& students, std::vector<std::shared_ptr<person>>& people, std::vector<std::shared_ptr<book>>& books, std::vector<std::shared_ptr<school>>& schools, std::vector<std::unique_ptr<Library>>& library) {
     int choice;
-    cout << "\nStudent Menu:\n";
-    cout << "1. Create a Student\n";
-    cout << "2. Display All Students\n";
-    cout << "3. Return a Book\n";
-    cout << "4. Add a rating to a book\n";
-    cout << "5. Associate the student with a school\n";
-    cout << "0. Back to Main Menu\n";
-    cout << "Enter your choice: ";
-    cin >> choice;
-    cin.ignore();
+    do {
+        cout << "\nStudent Menu:\n";
+        cout << "1. Create a Student\n";
+        cout << "2. Display All Students\n";
+        cout << "3. Return a Book\n";
+        cout << "4. Add a rating to a book\n";
+        cout << "5. Associate the student with a school\n";
+        cout << "6. Solve Homework\n";
+        cout << "7. view GPA\n";
+        cout << "0. Back to Main Menu\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cin.ignore();
 
-    switch (choice) {
-    case 1: {
-        std::shared_ptr<student> s = std::make_shared<student>();
-        s->input();
-        people.push_back(s);
-        students.push_back(s);
-        cout << "\nStudent created successfully!\n";
-        break;
-    }
-    case 2: {
-        if (students.empty()) {
-            cout << "No Students created yet!\n";
+        switch (choice) {
+        case 1: {
+            std::shared_ptr<student> s = std::make_shared<student>();
+            s->input();
+            people.push_back(s);
+            students.push_back(s);
+            cout << "\nStudent created successfully!\n";
+            break;
         }
-        else {
-            cout << "\nAll Students:\n";
-            for (int i = 0; i < students.size(); ++i) {
-                cout << "Student " << i + 1 << ":\n";
-                students[i]->affichage();
-                cout << "-----------------\n";
+        case 2: {
+            if (students.empty()) {
+                cout << "No Students created yet!\n";
             }
+            else {
+                cout << "\nAll Students:\n";
+                for (int i = 0; i < students.size(); ++i) {
+                    cout << "Student " << i + 1 << ":\n";
+                    students[i]->affichage();
+                    cout << "-----------------\n";
+                }
+            }
+            break;
         }
-        break;
-    }
-    case 3: {
-        if (students.empty()) {
-            cout << "No students available to return books.\n";
-        }
-        else {
-            if (this->associatedSchool == nullptr) {
-                cout << "The student does not have a school yet.\n";
+        case 3: {
+            if (students.empty()) {
+                cout << "No students available to return books.\n";
             }
-            else if (this->associatedSchool->getlibrary().getBooks().empty())
-            {
-                cout << "No Library was created in this school or the library is empty.\n";
-            }
-            else
-            {
-                if (this->Books_borrowed.empty())
+            else {
+                if (this->associatedSchool == nullptr) {
+                    cout << "The student does not have a school yet.\n";
+                }
+                else if (this->associatedSchool->getlibrary().getBooks().empty())
                 {
-                    cout << "The student has no books to return.\n";
+                    cout << "No Library was created in this school or the library is empty.\n";
                 }
                 else
                 {
-                    string bookName;
-                    cout << "Enter the name of the book to return: ";
-                    getline(cin, bookName);
-                    this->returnbook(this->associatedSchool->getlibrary(), bookName);
+                    if (this->Books_borrowed.empty())
+                    {
+                        cout << "The student has no books to return.\n";
+                    }
+                    else
+                    {
+                        string bookName;
+                        cout << "Enter the name of the book to return: ";
+                        getline(cin, bookName);
+                        this->returnbook(this->associatedSchool->getlibrary(), bookName);
+                    }
                 }
             }
+            break;
         }
-        break;
-    }
-    case 4: {
-        if (students.empty()) {
-            cout << "No students available to rate books.\n";
-        }
-        else {
-            if (this->getbooklist().empty()) {
-                cout << "No books available to rate from the student you selected\n";
+        case 4: {
+            if (students.empty()) {
+                cout << "No students available to rate books.\n";
             }
             else {
-                cout << "Available books to rate:\n";
-                for (book& book : this->Books_borrowed) {
-                    cout << "- " << book.gettitle() << "\n";
+                if (this->getbooklist().empty()) {
+                    cout << "No books available to rate from the student you selected\n";
                 }
-                string bookname;
-                float rating;
-                cout << "Enter the name of the book you want to rate : ";
-                getline(cin, bookname);
-                cout << "Enter the rating for this book (1-5) : ";
-                cin >> rating;
+                else {
+                    cout << "Available books to rate:\n";
+                    for (book& book : this->Books_borrowed) {
+                        cout << "- " << book.gettitle() << "\n";
+                    }
+                    string bookname;
+                    float rating;
+                    cout << "Enter the name of the book you want to rate : ";
+                    getline(cin, bookname);
+                    cout << "Enter the rating for this book (1-5) : ";
+                    cin >> rating;
+                    cin.ignore();
+                    this->addrating(bookname, rating);
+                }
+
+            }
+            break;
+        }
+        case 5: {
+            if (schools.empty()) {
+                cout << "No schools to choose from, create a school first.\n";
+            }
+            else {
+                cout << "Available schools:\n";
+                for (int i = 0; i < schools.size(); i++) {
+                    cout << i + 1 << ". " << schools[i]->getname() << "\n";
+                }
+                cout << "Enter the number of the school: ";
+                int schoolIndex;
+                cin >> schoolIndex;
                 cin.ignore();
-                this->addrating(bookname, rating);
-            }
+                if (schoolIndex > 0 && schoolIndex <= schools.size()) {
 
-        }
-        break;
-    }
-    case 5: {
-        if (schools.empty()) {
-            cout << "No schools to choose from, create a school first.\n";
-        }
-        else {
-            cout << "Available schools:\n";
-            for (int i = 0; i < schools.size(); i++) {
-                cout << i + 1 << ". " << schools[i]->getname() << "\n";
-            }
-            cout << "Enter the number of the school: ";
-            int schoolIndex;
-            cin >> schoolIndex;
-            cin.ignore();
-            if (schoolIndex > 0 && schoolIndex <= schools.size()) {
+                    // Check if the student is already associated with a school
+                    if (this->associatedSchool != nullptr) {
+                        // Remove student from the previous school list
+                        auto& currentSchoolStudents = this->associatedSchool->getStudents();
+                        auto it = std::remove_if(currentSchoolStudents.begin(), currentSchoolStudents.end(),
+                            [this](const std::shared_ptr<student>& s) {return s.get() == this; });
+                        currentSchoolStudents.erase(it, currentSchoolStudents.end());
+                    }
 
-                // Check if the student is already associated with a school
-                if (this->associatedSchool != nullptr) {
-                    // Remove student from the previous school list
-                    auto& currentSchoolStudents = this->associatedSchool->getStudents();
-                    auto it = std::remove_if(currentSchoolStudents.begin(), currentSchoolStudents.end(),
-                        [this](const std::shared_ptr<student>& s) {return s.get() == this; });
-                    currentSchoolStudents.erase(it, currentSchoolStudents.end());
+
+                    // Set the new school association
+                    this->setAssociatedSchool(schools[schoolIndex - 1].get());
+                    schools[schoolIndex - 1]->addStudent(shared_from_this());// Add to the school's student list
+                    cout << "The student is now associated with school: " << schools[schoolIndex - 1]->getname() << "\n";
                 }
-
-
-                // Set the new school association
-                this->setAssociatedSchool(schools[schoolIndex - 1].get());
-                schools[schoolIndex - 1]->addStudent(shared_from_this());// Add to the school's student list
-                cout << "The student is now associated with school: " << schools[schoolIndex - 1]->getname() << "\n";
+                else {
+                    cout << "Invalid school number!\n";
+                }
             }
-            else {
-                cout << "Invalid school number!\n";
-            }
+            break;
         }
-        break;
-    }
-    case 0: return;
-    default: cout << "Invalid choice!\n";
-    }
+        case 6: {
+            this->solvehomework();
+            break;
+        }
+        case 7: {
+            this->calculateGPA();
+            cout << "Updated GPA: " << this->GPA << "\n";
+            break;
+        }
+        case 0: return;
+        default: cout << "Invalid choice!\n";
+        }
+    }while (choice != 0);
 }
