@@ -103,24 +103,29 @@ vector<std::shared_ptr<assignment>> teacher::getHomework() {
         auto returned = stud->returnHomwork();
         collected.insert(collected.end(), returned.begin(), returned.end());
     }
-    Assignments.insert(Assignments.end(), collected.begin(), collected.end());
-    return collected;
+    return collected; // Return the collected assignments
 }
 
 
-void teacher::gradehomework() {
-    for (auto& assgn : Assignments) {
+void teacher::gradehomework(const vector<std::shared_ptr<assignment>>& assignmentsToGrade) {
+    for (auto& assgn : assignmentsToGrade) {
         if (assgn->getifdone()) {
             cout << "Grading assignment: " << assgn->getTitle() << endl;
             float grade;
             cout << "Enter grade (0-20): ";
             cin >> grade;
             assgn->setGrade(grade);
-            // Update the student's GPA
-            for (auto& stud : students) {
-                if (assgn->getTitle().find(stud->getName()) != string::npos) {
-                    stud->calculateGPA();
-                    break;
+
+            // Extract student name from the assignment title
+            string title = assgn->getTitle();
+            size_t pos = title.find("[Submitted by: ");
+            if (pos != string::npos) {
+                string studentName = title.substr(pos + 15, title.find("]") - pos - 15);
+                for (auto& stud : students) {
+                    if (stud->getName() == studentName) {
+                        stud->calculateGPA(); // Recalculate GPA after grading
+                        break;
+                    }
                 }
             }
         }
@@ -285,10 +290,8 @@ void teacher::manageTeacherMenu(vector<std::shared_ptr<teacher>>& teachers, vect
             break;
         }
         case 6: {
-            // Collect all completed assignments from students
-            auto collected = this->getHomework();
-            // Grade the collected assignments
-            this->gradehomework();
+            auto collected = this->getHomework(); // Collect homework from students
+            this->gradehomework(collected); // Grade the collected assignments
             break;
         }
         case 0: return;

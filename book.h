@@ -33,6 +33,7 @@ public:
     vector<student>& getBorrowHistory();
     void setBorrowHistory(student& s);
 
+    void addborrow_count(int a);
     string gettitle();
     void setratings(float a);
     void settitle(string newTitle);

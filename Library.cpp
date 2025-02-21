@@ -197,9 +197,9 @@ void Library::borrowBook(student* student, const std::string& bookTitle) {
         return;
     }
     student->getbooklist().push_back(**bookIt);
-    (*bookIt)->getborrow_count()++;
+    //(*bookIt)->addborrow_count(1);
     setStudentsBorrowing(student);
-
+    
     Books.erase(bookIt);
 
     std::cout << "Book \"" << bookTitle << "\" borrowed by \"" << student->getName() << "\".\n";

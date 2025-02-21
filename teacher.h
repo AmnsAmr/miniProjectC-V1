@@ -31,7 +31,7 @@ public:
     void AssignHomework(std::shared_ptr<assignment> homework);
     vector<std::shared_ptr<assignment>> getHomework();
     
-    void gradehomework();
+    void gradehomework(const vector<std::shared_ptr<assignment>>& assignmentsToGrade);
  
     friend ostream& operator<<(ostream& COUT, teacher& teacher);
 

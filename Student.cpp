@@ -21,7 +21,7 @@ void student::calculateGPA() {
             count++;
         }
     }
-    GPA += (count == 0) ? 0.0f : (total / count) * 0.25f;
+    GPA = (count == 0) ? 0.0f : (total / count) * 0.25f; // Fix: Replace += with =
 }
 
 vector<book>& student::getbooklist() { return Books_borrowed; }
@@ -113,10 +113,9 @@ vector<std::shared_ptr<assignment>> student::returnHomwork() {
     vector<std::shared_ptr<assignment>> doneAssignments;
     for (auto it = Assignments.begin(); it != Assignments.end();) {
         if ((*it)->getifdone()) {
-            // Append student's name to the title
             (*it)->addNameToTitle(" [Submitted by: " + Name + "]");
             doneAssignments.push_back(*it);
-            it = Assignments.erase(it);
+            ++it;
         }
         else {
             ++it;
@@ -130,6 +129,7 @@ vector<std::shared_ptr<assignment>> student::returnHomwork() {
 void student::returnbook(Library& library, const std::string& bookTitle) {
     for (auto bookIt = Books_borrowed.begin(); bookIt != Books_borrowed.end(); ++bookIt) {
         if (bookIt->gettitle() == bookTitle) {
+            bookIt->addborrow_count(1);
             library.setbooks(std::make_shared<book>(*bookIt));
             Books_borrowed.erase(bookIt);
             std::cout << "Book \"" << bookTitle << "\" returned successfully.\n";
@@ -202,10 +202,7 @@ void student::manageStudentMenu(std::vector<std::shared_ptr<student>>& students,
                 if (this->associatedSchool == nullptr) {
                     cout << "The student does not have a school yet.\n";
                 }
-                else if (this->associatedSchool->getlibrary().getBooks().empty())
-                {
-                    cout << "No Library was created in this school or the library is empty.\n";
-                }
+                
                 else
                 {
                     if (this->Books_borrowed.empty())
@@ -242,8 +239,13 @@ void student::manageStudentMenu(std::vector<std::shared_ptr<student>>& students,
                     getline(cin, bookname);
                     cout << "Enter the rating for this book (1-5) : ";
                     cin >> rating;
-                    cin.ignore();
-                    this->addrating(bookname, rating);
+                    if (rating>5||rating<0) {
+                        cout<<"the rating should be between 5 and 0\n";
+                    }else {
+                        cin.ignore();
+                        this->addrating(bookname, rating);
+                    }
+                    
                 }
 
             }

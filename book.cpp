@@ -50,7 +50,7 @@ void book::displayBorrowHistory() {
         }
     }
 }
-
+void book::addborrow_count(int a) { Borrow_count += a; }
 int& book::getborrow_count() { return Borrow_count; }
 vector<student>& book::getBorrowHistory() { return Borrow_history; }
 void book::setBorrowHistory(student& s) {
